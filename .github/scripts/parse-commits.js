@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
 
 // Get GitHub context
 const ref = process.env.GITHUB_REF;
