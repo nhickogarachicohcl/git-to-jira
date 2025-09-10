@@ -13,7 +13,7 @@ function extractJiraKey(branchRef) {
   const branchName = branchRef.replace('refs/heads/', '');
   const jiraMatch = branchName.match(/([A-Z]+-\d+)/);
   return jiraMatch ? jiraMatch[1] : null;
-}p
+}
 
 // Get commits from this push
 function getCommitsFromPush() {
