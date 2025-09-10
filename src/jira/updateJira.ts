@@ -2,25 +2,31 @@ import { get, addComment, changeStatus } from './issues.js';
 import { getTransitions } from './references.js';
 import { handleError } from './utils.js';
 
-async function addJiraComment(jiraId, comment) {
+async function addJiraComment(jiraId: string, comment: string): Promise<void> {
     try {
         await addComment(jiraId, comment);
+        console.log(`Comment added to issue ${jiraId}.`);
     } catch (error) {
         handleError('adding comment', error);
     }
 }
 
-async function changeJiraStatus(jiraId, newStatus) {
+async function changeJiraStatus(jiraId: string, newStatus: string): Promise<void> {
     try {
         const transitions = await getTransitions(jiraId);
         let newStatusId = transitions[newStatus];
-        changeStatus(jiraId, newStatusId);
+        if (typeof newStatusId === 'string') {
+            await changeStatus(jiraId, newStatusId);
+            console.log(`Issue ${jiraId} successfully changed to '${newStatus}'.`);
+        } else {``
+            handleError('changing status', new Error(`Status ID for '${newStatus}' not found.`));
+        }
     } catch (error) {
         handleError('changing status', error);
     }
 }
 
-async function getJiraIssue(jiraId) {
+async function getJiraIssue(jiraId: string): Promise<void> {
     try {
         const issue = await get(jiraId);
         console.log('Fetched Issue:', JSON.stringify(issue, null, 2));
@@ -30,8 +36,9 @@ async function getJiraIssue(jiraId) {
 }
 
 let jiraId = "DXQ-45657"; // Example Jira issue key
-let comment = "NEW -----This is a test comment added via API.";
-let newStatus = "In Code Review"; // Example status name
+let comment = "NEW 123 in TS-----This is a test comment added via API.";
+let newStatus = "In Progress"; // Example status name
+
 changeJiraStatus(jiraId, newStatus);
 addJiraComment(jiraId, comment);
-getJiraIssue(jiraId);
+//getJiraIssue(jiraId);
