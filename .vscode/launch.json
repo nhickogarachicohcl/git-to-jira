@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug TypeScript",
+            "name": "Debug Jira codes",
             "program": "${workspaceFolder}/src/jira/updateJira.ts",
             "runtimeExecutable": "tsx"
         }
