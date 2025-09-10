@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "start": "node src/jira/updateJira.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "dotenv": "^17.2.2"
+  "dotenv": "^17.2.2",
+  "axios": "^1.6.0"
   }
 }
