@@ -4,13 +4,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const _axios = axios.create({
-    baseURL: JIRA_BASE_URL || '',
-    headers:{
-        common: {
-            'Authorization': `Basic ${Buffer.from(JIRA_USER_EMAIL + ':' + JIRA_TOKEN).toString('base64')}`,
-            'Content-Type': 'application/json'
-        }
-    }
-})
+  baseURL: JIRA_BASE_URL || '',
+  headers: {
+    common: {
+      Authorization: `Basic ${Buffer.from(JIRA_USER_EMAIL + ':' + JIRA_TOKEN).toString('base64')}`,
+      'Content-Type': 'application/json',
+    },
+  },
+});
 
 export default _axios;
