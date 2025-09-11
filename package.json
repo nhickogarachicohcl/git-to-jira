@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
+    "start:jira": "tsx src/jira/updateJira.ts",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "prettier:check": "prettier . --check",
@@ -26,6 +27,7 @@
     "typescript-eslint": "^8.0.0"
   },
   "dependencies": {
+    "axios": "^1.6.0",
     "dotenv": "^17.2.2"
   }
 }
