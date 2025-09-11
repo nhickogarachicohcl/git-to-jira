@@ -20,7 +20,9 @@ export const JIRA_BASE_URL = process.env.JIRA_BASE_URL || '';
 export const JIRA_TOKEN = process.env.JIRA_TOKEN || '';
 export const JIRA_USER_EMAIL = process.env.JIRA_USER_EMAIL || '';
 
-const getConfig = (fileName = DEFAULT_CONFIG_FILENAME): Git2JiraConfig | {} => {
+const getConfig = (
+  fileName = DEFAULT_CONFIG_FILENAME
+): Git2JiraConfig | object => {
   // Check if git2jira.config.json file exists in the current directory
   const configPath = path.join(process.cwd(), fileName);
   let config = {};
