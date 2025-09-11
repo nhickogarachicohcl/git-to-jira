@@ -1,5 +1,6 @@
 import { execSync } from 'child_process';
 import { parseFilesFromDiff, FileChange } from './../../src/utils/diffParser';
+import { extractJiraKey } from './../../src/utils/jiraParser';
 
 // Type definitions
 interface BasicCommit {
@@ -32,13 +33,6 @@ const eventName: string = process.env.GITHUB_EVENT_NAME || '';
 console.log('=== GitHub Actions Context ===');
 console.log('Ref:', ref);
 console.log('Event:', eventName);
-
-// Extract Jira key from branch name
-function extractJiraKey(branchRef: string): string | null {
-  const branchName = branchRef.replace('refs/heads/', '');
-  const jiraMatch = branchName.match(/([A-Z]+-\d+)/);
-  return jiraMatch ? jiraMatch[1] : null;
-}
 
 // Get commits from the latest push
 function getCommitsFromPush(): BasicCommit[] {
