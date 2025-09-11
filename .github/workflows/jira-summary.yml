@@ -19,8 +19,12 @@ jobs:
         with:
           node-version: '20'
       
+      - name: Install dependencies
+        run: |
+          npm install --save-dev @types/node tsx
+      
       - name: Parse commits and generate data
         run: |
-          node .github/scripts/parse-commits.js
+          npx tsx .github/scripts/parse-commits.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
