@@ -1,13 +1,13 @@
 import axios from 'axios';
-import type { AxiosInstance } from 'axios';
+import { JIRA_BASE_URL, JIRA_TOKEN, JIRA_USER_EMAIL } from '../config.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const _axios = axios.create({
-    baseURL: process.env.JIRA_BASE_URL || '',
+    baseURL: JIRA_BASE_URL || '',
     headers:{
         common: {
-            'Authorization': `Basic ${Buffer.from(process.env.JIRA_USER_EMAIL + ':' + process.env.JIRA_TOKEN).toString('base64')}`,
+            'Authorization': `Basic ${Buffer.from(JIRA_USER_EMAIL + ':' + JIRA_TOKEN).toString('base64')}`,
             'Content-Type': 'application/json'
         }
     }
