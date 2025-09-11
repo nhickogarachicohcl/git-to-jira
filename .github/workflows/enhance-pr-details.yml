@@ -1,0 +1,54 @@
+name: Enhance PR Details
+
+on:
+  pull_request:
+    types: [opened, edited] # Triggers on creation and when the title is edited
+
+jobs:
+  enhance-and-validate:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # Required to update the PR description
+    steps:
+      - name: Validate Title and Append Description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              console.log("Could not get pull request from context.");
+              return;
+            }
+
+            // --- 1. Validate PR Title ---
+            const title = pr.title;
+            const titleRegex = /^\s*DXQ-\d+( .*)?$/i;
+
+            if (!titleRegex.test(title)) {
+              core.setFailed("Error: PR Title must start with a ticket number (e.g., '[DXQ-123] My Feature').");
+              return; // Stop the script if the title is invalid
+            }
+
+            // --- 2. Append to PR Description ---
+            const currentBody = pr.body || ''; // Handle cases where the PR body is initially empty
+            
+            const descriptionToAdd = `
+            
+            ---
+            *This section was automatically added by an AI.* 
+            `;
+
+            // Only update if the content hasn't been added already
+            if (currentBody.includes("This section was automatically added")) {
+              console.log("PR description already contains the automated section. Skipping update.");
+              return;
+            }
+
+            const newBody = currentBody + descriptionToAdd;
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              body: newBody
+            });
