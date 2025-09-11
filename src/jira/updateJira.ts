@@ -36,8 +36,8 @@ async function getJiraIssue(jiraId: string): Promise<void> {
 }
 
 let jiraId = "DXQ-45657"; // Example Jira issue key
-let comment = "NEW 123456 in TS-----This is a test comment added via API.";
-let newStatus = "In Progress"; // Example status name
+let comment = "NEW 123456678 in TS-----This is a test comment added via API.";
+let newStatus = "Blocked"; // Example status name
 
 changeJiraStatus(jiraId, newStatus);
 addJiraComment(jiraId, comment);
