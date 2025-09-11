@@ -11,6 +11,7 @@ interface Git2JiraConfig {
   };
   jira?: {
     ticketPrefixes?: string[];
+    fieldsToInclude?: string[];
   };
 }
 
@@ -25,20 +26,19 @@ const getConfig = (
 ): Git2JiraConfig | object => {
   // Check if git2jira.config.json file exists in the current directory
   const configPath = path.join(process.cwd(), fileName);
-  let config = {};
 
   if (fs.existsSync(configPath)) {
     const content = fs.readFileSync(configPath, 'utf-8');
     try {
-      config = JSON.parse(content);
+      return JSON.parse(content);
     } catch (err) {
       console.error('Invalid JSON:', err);
+      return {};
     }
   } else {
     console.error(`${fileName} does not exist in the root directory.`);
+    return {};
   }
-
-  return config;
 };
 
-export const CONFIG = getConfig();
+export const CONFIG: Git2JiraConfig = getConfig();

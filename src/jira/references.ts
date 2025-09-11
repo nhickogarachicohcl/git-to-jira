@@ -1,5 +1,5 @@
 import axios from './rest.js';
-import { handleError, mapNameToId } from './utils.js';
+import { handleError } from './utils.js';
 
 export async function getTransitions(
   issueID: string
