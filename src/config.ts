@@ -10,7 +10,7 @@ interface Git2JiraConfig {
     maxTokens?: number;
   };
   jira?: {
-    ticketPrefixes?: string[];
+    ticketPrefix: string;
     fieldsToInclude?: string[];
   };
 }

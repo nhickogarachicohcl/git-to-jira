@@ -9,7 +9,7 @@ console.log(CONFIG);
 // console.log('---SAMPLE JIRA ISSUE---');
 
 const sampleIssue = await getIssue(
-  `${CONFIG.jira?.ticketPrefixes?.[0] ?? 'DXQ'}-4567`
+  `${CONFIG.jira?.ticketPrefix ?? 'DXQ'}-4567`
 );
 
 console.log(sampleIssue);

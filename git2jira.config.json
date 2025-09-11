@@ -5,7 +5,7 @@
         "maxTokens": 200
     },
     "jira": {
-        "ticketPrefixes": ["DXQ"],
+        "ticketPrefix": "DXQ",
         "fieldsToInclude": []
     }
 }
