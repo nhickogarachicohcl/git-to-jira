@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
-import { parseFilesFromDiff, FileChange } from './../../src/utils/diffParser';
-import { extractJiraKey } from './../../src/utils/jiraParser';
+import { parseFilesFromDiff, FileChange } from '../../src/utils/diffParser.js';
+import { extractJiraKey } from '../../src/utils/jiraParser.js';
 
 // Type definitions
 interface BasicCommit {
@@ -37,20 +37,25 @@ console.log('Event:', eventName);
 // Get commits from the latest push
 function getCommitsFromPush(): BasicCommit[] {
   try {
-    // Get the exact commit range between last commit in the branch before the push
-    // and the final commit in the current push
-    const beforeSha = process.env.GITHUB_SHA_BEFORE || 'HEAD~1';
-    const afterSha = process.env.GITHUB_SHA || 'HEAD';
+    // Get the exact commit range from GitHub push event
+    const beforeSha = process.env.GITHUB_SHA_BEFORE;
+    const afterSha = process.env.GITHUB_SHA;
     
-    console.log(`Getting commits from ${beforeSha}..${afterSha}`);
+    let gitOutput: string;
     
-    // Returns commits from the range
-    const gitOutput = execSync(`git log ${beforeSha}..${afterSha} --format="%H|%s|%ct"`, { encoding: 'utf8' })
-      .trim();
+    if (beforeSha && afterSha && beforeSha !== '0000000000000000000000000000000000000000') {
+      // Use push range
+      console.log(`Getting commits from GitHub push range: ${beforeSha}..${afterSha}`);
+      gitOutput = execSync(`git log ${beforeSha}..${afterSha} --format="%H|%s|%ct"`, { encoding: 'utf8' }).trim();
+    } else {
+      // Fallback for new branches or when GitHub vars unavailable
+      console.log('Using fallback: recent commits');
+      gitOutput = execSync('git log -10 --format="%H|%s|%ct"', { encoding: 'utf8' }).trim();
+    }
     
     // Handle no commits in range
     if (!gitOutput) {
-      console.log('No commits found in push range');
+      console.log('No commits found in range');
       return [];
     }
     
@@ -68,9 +73,9 @@ function getCommitsFromPush(): BasicCommit[] {
     return commits;
   } catch (error) {
     console.error('Error getting commits:', (error as Error).message);
-    // Fallback to recent commits if git range fails
+    // Final fallback to recent commits
     try {
-      console.log('Falling back to recent commits...');
+      console.log('Final fallback to recent commits...');
       const commits = execSync('git log -5 --format="%H|%s|%ct"', { encoding: 'utf8' })
         .trim()
         .split('\n')
@@ -84,7 +89,7 @@ function getCommitsFromPush(): BasicCommit[] {
         });
       return commits;
     } catch (fallbackError) {
-      console.error('Fallback also failed:', (fallbackError as Error).message);
+      console.error('Final fallback also failed:', (fallbackError as Error).message);
       return [];
     }
   }
