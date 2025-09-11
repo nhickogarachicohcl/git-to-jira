@@ -1,4 +1,4 @@
-import { get, addComment, changeStatus } from './issues.js';
+import { getIssue, addComment, changeStatus } from './issues.js';
 import { getTransitions } from './references.js';
 import { handleError } from './utils.js';
 
@@ -28,7 +28,7 @@ async function changeJiraStatus(jiraId: string, newStatus: string): Promise<void
 
 async function getJiraIssue(jiraId: string): Promise<void> {
     try {
-        const issue = await get(jiraId);
+        const issue = await getIssue(jiraId);
         console.log('Fetched Issue:', JSON.stringify(issue, null, 2));
     } catch (error) {
         handleError('fetching issue', error);

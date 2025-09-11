@@ -1,7 +1,7 @@
 import axios from "./rest.js";
 import { handleError } from "./utils.js";
 
-export async function get(issueID: string): Promise<any> {
+export async function getIssue(issueID: string): Promise<any> {
     try {
         const res = await axios.get(`/issue/${issueID}`);
         return res.data;
