@@ -1,16 +1,17 @@
-name: Enhance PR Details
+name: Enhance and Update PR Details
 
 on:
   pull_request:
-    types: [opened, edited] # Triggers on creation and when the title is edited
+    types: [opened, edited, synchronize] # Triggers on creation, title edits, and new pushes
 
 jobs:
   enhance-and-validate:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write # Required to update the PR description
+      pull-requests: write # To update the PR description
+      contents: read       # To read commit details
     steps:
-      - name: Validate Title and Append Description
+      - name: Validate Title and Update Description
         uses: actions/github-script@v7
         with:
           script: |
@@ -21,34 +22,59 @@ jobs:
             }
 
             // --- 1. Validate PR Title ---
+            let jiraSection = '';
             const title = pr.title;
             const titleRegex = /^\s*DXQ-\d+( .*)?$/i;
-
             if (!titleRegex.test(title)) {
-              core.setFailed("Error: PR Title must start with a ticket number (e.g., '[DXQ-123] My Feature').");
-              return; // Stop the script if the title is invalid
+              core.setFailed("Error: PR Title must contain a ticket number (e.g., 'DXQ-123 My Feature').");
+              return; // Stop execution if the title is invalid
+            } else {
+              // --- 2. Extract Jira Ticket and Create Link ---
+              const jiraTicketMatch = title.match(/DXQ-\d+/i);
+              const jiraTicketId = jiraTicketMatch[0].toUpperCase();
+              const jiraUrl = `https://hclsw-jirads.atlassian.net/browse/${jiraTicketId}`;
+              const jiraLink = `[${jiraTicketId}](${jiraUrl})`;
+              jiraSection = `### 🎟️ Jira Ticket\n${jiraLink}`;
             }
 
-            // --- 2. Append to PR Description ---
-            const currentBody = pr.body || ''; // Handle cases where the PR body is initially empty
-            
-            const descriptionToAdd = `
-            
-            ---
-            *This section was automatically added by an AI.* 
-            `;
+            // --- 3. Fetch all commits from the PR ---
+            const { data: commits } = await github.rest.pulls.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+            });
 
-            // Only update if the content hasn't been added already
-            if (currentBody.includes("This section was automatically added")) {
-              console.log("PR description already contains the automated section. Skipping update.");
-              return;
+            // --- 4. Format the commit list into markdown ---
+            let commitSummary = "No new commits found.";
+            if (commits.length > 0) {
+              commitSummary = commits.map(c => {
+                const firstLine = c.commit.message.split('\n')[0];
+                return `* [\`${c.sha.substring(0, 7)}\`](${c.html_url}) - ${firstLine}`;
+              }).join('\n');
+            }
+            const commitSection = `### 🚀 Commit Updates\n${commitSummary}`;
+
+            // --- 5. Define the new AI Summary section ---
+            const aiSummarySection = `### 🤖 AI Summary\nThis section was automatically added. AI summary will be added here.`;
+
+            // --- 6. Construct the new PR body ---
+            const currentBody = pr.body || '';
+            const botSeparator = "\n\n---\n"; // Defines the start of the automated section
+            let userDescription = currentBody;
+
+            // Find the user's original description by stripping out the old bot content
+            const separatorIndex = currentBody.indexOf(botSeparator);
+            if (separatorIndex !== -1) {
+              userDescription = currentBody.substring(0, separatorIndex);
             }
 
-            const newBody = currentBody + descriptionToAdd;
+            // Assemble the new body by preserving the user's text and adding all fresh bot content
+            const newBody = userDescription.trim() + botSeparator + jiraSection + "\n\n" + aiSummarySection + "\n\n" + commitSection;
 
+            // --- 7. Update the PR description ---
             await github.rest.pulls.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: pr.number,
-              body: newBody
+              body: newBody,
             });
