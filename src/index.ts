@@ -5,27 +5,30 @@ import fs from 'fs/promises'; // For file system operations
 dotenv.config();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
 
-async function summarizeFile(filePath: string): Promise<void> {
+export async function summarizeFile(
+  input: string,
+  filePath?: string
+): Promise<string | undefined> {
   try {
-
-    const fileContent = await fs.readFile(filePath, 'utf-8');
+    // const fileContent = await fs.readFile(filePath, 'utf-8');
 
     const prompt = `Generate a pull request summary from the following diff. Format the response in markdown with these sections:
     * **Summary**: A high-level overview of the changes.
     * **Files Changed**: A one-sentence summary for each modified file.
     * **Testing**: Details on how the changes were verified.
     * **Related Issues**: (Optional) List any related issue numbers (e.g., "Closes #123").
-        Diff: ${fileContent}`;
+        Diff: ${input}`;
 
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
     });
 
-    console.log(response.text);
+    return response.text;
   } catch (error) {
     console.error('Error reading file or generating summary:', error);
+    return undefined;
   }
 }
 
-summarizeFile("./input.txt");
+summarizeFile('./input.txt');
