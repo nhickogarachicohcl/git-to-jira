@@ -1,0 +1,11 @@
+{   
+    "commitMessageFlag": "[autocomment]",
+    "llm": {
+        "systemPrompt": "",
+        "maxTokens": 200
+    },
+    "jira": {
+        "ticketPrefix": "DXQ",
+        "fieldsToInclude": []
+    }
+}

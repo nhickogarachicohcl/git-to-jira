@@ -1,3 +1,6 @@
+import { CONFIG } from './config.js';
+import { getIssue } from './jira/issues.js';
+
 import { GoogleGenAI, GenerateContentResponse } from '@google/genai';
 import dotenv from 'dotenv';
 import fs from 'fs/promises'; // For file system operations
@@ -7,7 +10,6 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
 
 async function summarizeFile(filePath: string): Promise<void> {
   try {
-
     const fileContent = await fs.readFile(filePath, 'utf-8');
 
     const prompt = `Generate a pull request summary from the following diff. Format the response in markdown with these sections:
@@ -28,4 +30,16 @@ async function summarizeFile(filePath: string): Promise<void> {
   }
 }
 
-summarizeFile("./input.txt");
+// summarizeFile('./input.txt');
+
+console.log('---CONFIG VARIABLES---');
+console.log(CONFIG);
+
+// Get sample jira issue based on config
+// console.log('---SAMPLE JIRA ISSUE---');
+
+// const sampleIssue = await getIssue(
+//   `${CONFIG.jira?.ticketPrefix ?? 'DXQ'}-4567`
+// );
+
+// console.log(sampleIssue);
