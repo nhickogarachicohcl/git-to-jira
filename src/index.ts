@@ -27,18 +27,19 @@ async function summarizeFile(filePath: string): Promise<void> {
     console.log(response.text);
   } catch (error) {
     console.error('Error reading file or generating summary:', error);
-    console.log('---CONFIG VARIABLES---');
-    console.log(CONFIG);
-
-    // Get sample jira issue based on config
-    // console.log('---SAMPLE JIRA ISSUE---');
-
-    const sampleIssue = await getIssue(
-      `${CONFIG.jira?.ticketPrefix ?? 'DXQ'}-4567`
-    );
-
-    console.log(sampleIssue);
   }
 }
 
-summarizeFile('./input.txt');
+// summarizeFile('./input.txt');
+
+console.log('---CONFIG VARIABLES---');
+console.log(CONFIG);
+
+// Get sample jira issue based on config
+// console.log('---SAMPLE JIRA ISSUE---');
+
+// const sampleIssue = await getIssue(
+//   `${CONFIG.jira?.ticketPrefix ?? 'DXQ'}-4567`
+// );
+
+// console.log(sampleIssue);
