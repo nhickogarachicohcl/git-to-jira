@@ -75,3 +75,5 @@ if (llmData) {
     console.error('No Jira key found');
   }
 }
+
+console.log('Finished running.');
