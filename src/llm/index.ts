@@ -1,5 +1,5 @@
 import { GoogleGenAI, GenerateContentResponse } from '@google/genai';
-import { SYSTEM_PROMPT } from './prompts.js';
+import { getFooterDisclaimer, SYSTEM_PROMPT } from './prompts.js';
 import { GEMINI_API_KEY } from '../config.js';
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
@@ -16,7 +16,9 @@ export async function summarizeFile(
       },
     });
 
-    return response.text;
+    let responseText = response.text;
+    responseText += getFooterDisclaimer();
+    return responseText;
   } catch (error) {
     console.error('Error reading file or generating summary:', error);
     return undefined;

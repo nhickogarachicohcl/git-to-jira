@@ -6,7 +6,6 @@ import {
 import { extractJiraKey, formatForLLM } from './git/jiraParser.js';
 import { summarizeFile } from './llm/index.js';
 import { addComment, getIssue } from './jira/issues.js';
-import { execSync } from 'child_process';
 
 const branchName = getCurrentBranchName();
 const jiraKey = extractJiraKey(branchName);
