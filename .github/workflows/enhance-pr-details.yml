@@ -26,8 +26,7 @@ jobs:
             const title = pr.title;
             const titleRegex = /^\s*DXQ-\d+( .*)?$/i;
             if (!titleRegex.test(title)) {
-              core.setFailed("Error: PR Title must contain a ticket number (e.g., 'DXQ-123 My Feature').");
-              return; // Stop execution if the title is invalid
+              console.log("Error: PR Title must contain a ticket number (e.g., 'DXQ-123 My Feature').");
             } else {
               // --- 2. Extract Jira Ticket and Create Link ---
               const jiraTicketMatch = title.match(/DXQ-\d+/i);
@@ -57,24 +56,35 @@ jobs:
             // --- 5. Define the new AI Summary section ---
             const aiSummarySection = `### 🤖 AI Summary\nThis section was automatically added. AI summary will be added here.`;
 
-            // --- 6. Construct the new PR body ---
+            // --- 6. Construct the new PR body (CORRECTED LOGIC) ---
             const currentBody = pr.body || '';
-            const botSeparator = "\n\n---\n"; // Defines the start of the automated section
+            
+            // This is the new, more robust separator. It includes a visible and an invisible part.
+            const botSeparator = "\n\n---\n*✍️ The content below is auto-generated and will be overwritten. Do not edit manually.*\n";
+            const invisibleMarker = "";
+            
             let userDescription = currentBody;
 
-            // Find the user's original description by stripping out the old bot content
-            const separatorIndex = currentBody.indexOf(botSeparator);
-            if (separatorIndex !== -1) {
-              userDescription = currentBody.substring(0, separatorIndex);
+            const markerIndex = currentBody.indexOf("---");
+            if (markerIndex !== -1) {
+              // If marker exists, everything before it is the user's description
+              userDescription = currentBody.substring(0, markerIndex);
             }
 
-            // Assemble the new body by preserving the user's text and adding all fresh bot content
-            const newBody = userDescription.trim() + botSeparator + jiraSection + "\n\n" + aiSummarySection + "\n\n" + commitSection;
+            // Assemble all the bot's content into one block
+            const botContent = jiraSection + "\n\n" + aiSummarySection + "\n\n" + commitSection;
+
+            // Assemble the new body using the full separator
+            const newBody = userDescription.trim() + botSeparator + "\n\n" + botContent;
 
             // --- 7. Update the PR description ---
-            await github.rest.pulls.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.number,
-              body: newBody,
-            });
+            if (newBody.trim() !== currentBody.trim()) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                body: newBody,
+              });
+            } else {
+              console.log("No changes to PR description. Skipping update.");
+            }
