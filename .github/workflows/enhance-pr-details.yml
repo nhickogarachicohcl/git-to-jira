@@ -1,0 +1,90 @@
+name: Enhance and Update PR Details
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize] # Triggers on creation, title edits, and new pushes
+
+jobs:
+  enhance-and-validate:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # To update the PR description
+      contents: read       # To read commit details
+    steps:
+      - name: Validate Title and Update Description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              console.log("Could not get pull request from context.");
+              return;
+            }
+
+            // --- 1. Validate PR Title ---
+            let jiraSection = '';
+            const title = pr.title;
+            const titleRegex = /^\s*DXQ-\d+( .*)?$/i;
+            if (!titleRegex.test(title)) {
+              console.log("Error: PR Title must contain a ticket number (e.g., 'DXQ-123 My Feature').");
+            } else {
+              // --- 2. Extract Jira Ticket and Create Link ---
+              const jiraTicketMatch = title.match(/DXQ-\d+/i);
+              const jiraTicketId = jiraTicketMatch[0].toUpperCase();
+              const jiraUrl = `https://hclsw-jirads.atlassian.net/browse/${jiraTicketId}`;
+              const jiraLink = `[${jiraTicketId}](${jiraUrl})`;
+              jiraSection = `### 🎟️ Jira Ticket\n${jiraLink}`;
+            }
+
+            // --- 3. Fetch all commits from the PR ---
+            const { data: commits } = await github.rest.pulls.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+            });
+
+            // --- 4. Format the commit list into markdown ---
+            let commitSummary = "No new commits found.";
+            if (commits.length > 0) {
+              commitSummary = commits.map(c => {
+                const firstLine = c.commit.message.split('\n')[0];
+                return `* [\`${c.sha.substring(0, 7)}\`](${c.html_url}) - ${firstLine}`;
+              }).join('\n');
+            }
+            const commitSection = `### 🚀 Commit Updates\n${commitSummary}`;
+
+            // --- 5. Define the new AI Summary section ---
+            const aiSummarySection = `### 🤖 AI Summary\nThis section was automatically added. AI summary will be added here.`;
+
+            // --- 6. Construct the new PR body (CORRECTED LOGIC) ---
+            const currentBody = pr.body || '';
+            
+            // This is the new, more robust separator. It includes a visible and an invisible part.
+            const botSeparator = "\n\n---\n*✍️ The content below is auto-generated and will be overwritten. Do not edit manually.*\n";
+            const invisibleMarker = "";
+            
+            let userDescription = currentBody;
+
+            const markerIndex = currentBody.indexOf("---");
+            if (markerIndex !== -1) {
+              // If marker exists, everything before it is the user's description
+              userDescription = currentBody.substring(0, markerIndex);
+            }
+
+            // Assemble all the bot's content into one block
+            const botContent = jiraSection + "\n\n" + aiSummarySection + "\n\n" + commitSection;
+
+            // Assemble the new body using the full separator
+            const newBody = userDescription.trim() + botSeparator + "\n\n" + botContent;
+
+            // --- 7. Update the PR description ---
+            if (newBody.trim() !== currentBody.trim()) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                body: newBody,
+              });
+            } else {
+              console.log("No changes to PR description. Skipping update.");
+            }
