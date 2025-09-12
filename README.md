@@ -1,6 +1,8 @@
 # Git-to-Jira: AI-Powered Diff Summaries
 
+
 ## Description
+
 
 This bot automates Jira comments based on your Git commits. It uses an AI to read your code changes and writes a summary for you.
 
