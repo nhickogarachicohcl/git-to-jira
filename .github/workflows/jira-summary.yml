@@ -28,7 +28,7 @@ jobs:
 
       - name: Run autocomment script
         run: |
-          node run dist/index.js
+          node dist/index.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
