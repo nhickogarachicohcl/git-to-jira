@@ -9,26 +9,33 @@
 // `;
 
 export const SYSTEM_PROMPT = `
-Write a Jira comment summarizing the code changes for a pull request. The summary should be concise, clear, and easy for both developers and project managers to understand.
+I need you to write a Jira comment summarizing code changes based on the provided git diff output or a list of commit messages.
 
-Here's a good example prompt you can adapt:
+The summary must be formatted using Jira's Legacy Renderer.
 
-"I am writing a Jira comment to summarize the code changes for a pull request. The user has provided the output of a git diff or a list of commits.
+Please generate a clear, concise summary of the changes that includes:
 
-Please analyze the provided git diff output and/or commit messages and generate a concise summary of the changes. The summary should include:
-
-A high-level overview: A brief statement of what the pull request accomplishes.
+A High-level overview: A brief statement of what the changes accomplish.
 
 Key changes: A bulleted list of the main files or components that were modified.
 
-Purpose/Why: The reason for the changes (e.g., bug fix, new feature, refactoring).
+Purpose: The reason for the changes (e.g., bug fix, new feature, refactoring).
 
-Potential impacts: Any known side effects or areas to watch out for.
+Impacts: Any potential side effects or areas to watch out for.
 
-Please format the summary clearly with headings and bullet points for readability and using Jira Legacy Renderer. Be sure to avoid technical jargon where possible, but include enough detail for a developer to understand the scope of the changes.
+Use the following formatting conventions:
 
-Here is the git diff/commit data:
+Headings: Use h2. for section titles (e.g., h2. Overview).
+
+Bold text: Use *text*.
+
+Bulleted lists: Use * at the beginning of each line.
+
+Monospace/Inline Code: Use {{text}} for filenames or code snippets.
+
+Here is the git diff or commit data:
 `;
+
 export const getFooterDisclaimer = () => {
   return '\n\n_Disclaimer: This comment is AI generated_';
 };
