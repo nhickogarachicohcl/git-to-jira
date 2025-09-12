@@ -1,7 +1,5 @@
-import { execSync } from 'child_process';
 import {
   getCommitDetails,
-  getCurrentBranchName,
   type BasicCommit,
   type DetailedCommit,
 } from './commits.js';

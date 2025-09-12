@@ -1,34 +1,60 @@
-import { GoogleGenAI, GenerateContentResponse } from '@google/genai';
-import dotenv from 'dotenv';
-import fs from 'fs/promises'; // For file system operations
+import {
+  findFlaggedCommits,
+  getCommitsFromGit,
+  getCurrentBranchName,
+} from './git/commits.js';
+import { extractJiraKey, formatForLLM } from './git/jiraParser.js';
+import { summarizeFile } from './llm/index.js';
+import { addComment, getIssue } from './jira/issues.js';
 
-dotenv.config();
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
+const branchName = getCurrentBranchName();
+const jiraKey = extractJiraKey(branchName);
+const allCommits = getCommitsFromGit();
+const flaggedCommits = findFlaggedCommits(allCommits);
 
-export async function summarizeFile(
-  input: string,
-  filePath?: string
-): Promise<string | undefined> {
-  try {
-    // const fileContent = await fs.readFile(filePath, 'utf-8');
+let llmData;
+if (flaggedCommits.length > 0) {
+  console.log('\n=== Processing Commits ===');
+  flaggedCommits.forEach((commit, index) => {
+    console.log(
+      `${index + 1}. ${commit.sha.substring(0, 7)} - ${commit.message}`
+    );
+  });
 
-    const prompt = `Generate a pull request summary from the following diff. Format the response in markdown with these sections:
-    * **Summary**: A high-level overview of the changes.
-    * **Files Changed**: A one-sentence summary for each modified file.
-    * **Testing**: Details on how the changes were verified.
-    * **Related Issues**: (Optional) List any related issue numbers (e.g., "Closes #123").
-        Diff: ${input}`;
+  // Generate final JSON output
+  llmData = formatForLLM(jiraKey, branchName, flaggedCommits);
 
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    });
+  // LLM
+  if (llmData && llmData.jiraKey) {
+    console.log('\n=== Initializing LLM Summarizer ===');
+    // get Jira issue first
+    const { jiraKey } = llmData;
+    try {
+      console.log('Fetching Jira issue');
+      const jiraIssue = await getIssue(jiraKey);
 
-    return response.text;
-  } catch (error) {
-    console.error('Error reading file or generating summary:', error);
-    return undefined;
+      if (jiraIssue && jiraIssue.id) {
+        console.log(`Found Jira issue ${jiraKey}`);
+        // Summarize changes
+        const {
+          summary: { commits },
+        } = llmData;
+        console.log('Summarizing using LLM');
+        const summary = await summarizeFile(JSON.stringify(commits));
+
+        if (summary) {
+          console.log(`Summarized changes\n${summary}`);
+          console.log(`Adding comment in Jira issue ${jiraKey}`);
+          // Comment
+          await addComment(jiraKey, summary);
+          console.log('Successfully added comment!');
+        }
+      }
+    } catch (error) {
+      console.error('Error summarizing changes');
+    }
   }
+  console.log(JSON.stringify(llmData, null, 2));
+} else {
+  console.log('No flagged commits found. Skipping LLM processing.');
 }
-
-summarizeFile('./input.txt');
