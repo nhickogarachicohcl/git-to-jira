@@ -33,11 +33,6 @@ async function summarizeFile(input: string, filePath?: string): Promise<any> {
   }
 }
 
-console.log('GEMINI API KEY', GEMINI_API_KEY);
-console.log('JIRA_BASE_URL', JIRA_BASE_URL);
-console.log('JIRA_TOKEN', JIRA_TOKEN);
-console.log('JIRA_USER_EMAIL', JIRA_USER_EMAIL);
-
 if (llmData) {
   const { branchName, jiraKey } = llmData;
   console.log('--- Initializing Git to Jira ---');
