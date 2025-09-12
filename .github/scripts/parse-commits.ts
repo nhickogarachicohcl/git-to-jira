@@ -1,20 +1,9 @@
-import { extractJiraKey } from '../../src/git/jiraParser.js';
+import { extractJiraKey, formatForLLM } from '../../src/git/jiraParser.js';
 import {
-  BasicCommit,
-  DetailedCommit,
   findFlaggedCommits,
-  getCommitDetails,
   getCommitsFromPush,
+  getCurrentBranchName,
 } from '../../src/git/commits.js';
-interface LLMOutput {
-  jiraKey: string | null;
-  branchName: string;
-  summary: {
-    totalCommits: number;
-    totalFilesChanged: number;
-    commits: DetailedCommit[];
-  };
-}
 
 // Get GitHub context
 const ref: string = process.env.GITHUB_REF || '';
@@ -24,37 +13,9 @@ console.log('=== GitHub Actions Context ===');
 console.log('Ref:', ref);
 console.log('Event:', eventName);
 
-// Format final JSON output
-function formatForLLM(
-  jiraKey: string | null,
-  branchRef: string,
-  flaggedCommits: BasicCommit[]
-): LLMOutput {
-  const branchName = branchRef.replace('refs/heads/', '');
-
-  // Get detailed data for each commit
-  const commitDetails = flaggedCommits.map(getCommitDetails);
-
-  // Calculate total commits and file changes
-  const totalCommits = commitDetails.length;
-  const totalFilesChanged = commitDetails.reduce(
-    (total, commit) => total + commit.files.length,
-    0
-  );
-
-  return {
-    jiraKey: jiraKey,
-    branchName: branchName,
-    summary: {
-      totalCommits: totalCommits,
-      totalFilesChanged: totalFilesChanged,
-      commits: commitDetails,
-    },
-  };
-}
-
 // Main execution
-const jiraKey = extractJiraKey(ref);
+const branchName = getCurrentBranchName(ref);
+const jiraKey = extractJiraKey(branchName);
 const allCommits = getCommitsFromPush();
 const flaggedCommits = findFlaggedCommits(allCommits);
 
@@ -72,7 +33,7 @@ if (flaggedCommits.length > 0) {
   });
 
   // Generate final JSON output
-  const llmData = formatForLLM(jiraKey, ref, flaggedCommits);
+  const llmData = formatForLLM(jiraKey, branchName, flaggedCommits);
 
   console.log('\n=== LLM DATA OUTPUT ===');
   console.log(JSON.stringify(llmData, null, 2));

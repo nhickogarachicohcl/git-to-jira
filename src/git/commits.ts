@@ -15,6 +15,22 @@ export interface DetailedCommit {
   files: FileChange[];
 }
 
+export function getCurrentBranchName(branchRef?: string): string {
+  if (branchRef) {
+    // If a branchRef is provided, use it directly after cleaning it up.
+    return branchRef.replace('refs/heads/', '');
+  } else {
+    // If no branchRef is provided, get the current branch name using the utility function.
+    try {
+      return execSync(`git rev-parse --abbrev-ref HEAD`, {
+        encoding: 'utf8',
+      }).trim();
+    } catch (error) {
+      throw new Error(`Failed to get the branch name.`);
+    }
+  }
+}
+
 // Get commits from GitHub event payload
 export function getCommitsFromGitHubEvent(): BasicCommit[] {
   try {
