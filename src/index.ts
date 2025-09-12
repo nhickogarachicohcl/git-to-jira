@@ -10,7 +10,12 @@ async function summarizeFile(filePath: string): Promise<void> {
 
     const fileContent = await fs.readFile(filePath, 'utf-8');
 
-    const prompt = `Please provide a concise summary of the following text:\n\n${fileContent}`;
+    const prompt = `Generate a pull request summary from the following diff. Format the response in markdown with these sections:
+    * **Summary**: A high-level overview of the changes.
+    * **Files Changed**: A one-sentence summary for each modified file.
+    * **Testing**: Details on how the changes were verified.
+    * **Related Issues**: (Optional) List any related issue numbers (e.g., "Closes #123").
+        Diff: ${fileContent}`;
 
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
