@@ -4,6 +4,12 @@ import fs from 'fs/promises'; // For file system operations
 import { llmData } from './git/parse-commits.js';
 import { getIssue } from './jira/issues.js';
 import { addJiraComment } from './jira/updateJira.js';
+import {
+  GEMINI_API_KEY,
+  JIRA_BASE_URL,
+  JIRA_TOKEN,
+  JIRA_USER_EMAIL,
+} from './config.js';
 
 dotenv.config();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
@@ -26,6 +32,11 @@ async function summarizeFile(input: string, filePath?: string): Promise<any> {
     return undefined;
   }
 }
+
+console.log('GEMINI API KEY', GEMINI_API_KEY);
+console.log('JIRA_BASE_URL', JIRA_BASE_URL);
+console.log('JIRA_TOKEN', JIRA_TOKEN);
+console.log('JIRA_USER_EMAIL', JIRA_USER_EMAIL);
 
 if (llmData) {
   const { branchName, jiraKey } = llmData;
