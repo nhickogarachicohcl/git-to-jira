@@ -7,6 +7,27 @@ export interface FileChange {
 
 // Parse files and diffs from git show output
 export function parseFilesFromDiff(diffOutput: string): FileChange[] {
+  if (!diffOutput) {
+    console.warn('parseFilesFromDiff: Empty or null diffOutput provided');
+    return [];
+  }
+  
+  if (typeof diffOutput !== 'string') {
+    console.warn('parseFilesFromDiff: diffOutput must be a string, received:', typeof diffOutput);
+    return [];
+  }
+  
+  if (diffOutput.trim().length === 0) {
+    console.warn('parseFilesFromDiff: diffOutput is empty or whitespace only');
+    return [];
+  }
+  
+  if (!diffOutput.includes('diff --git')) {
+    console.warn('parseFilesFromDiff: Input does not appear to be git diff output');
+    return [];
+  }
+  
+  // Main parsing logic
   const files: FileChange[] = [];
   const lines = diffOutput.split('\n');
   
