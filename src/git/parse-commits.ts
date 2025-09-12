@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { execSync } from 'child_process';
 import fs from 'fs';
 import { parseFilesFromDiff, type FileChange } from '../utils/diffParser.js';
@@ -64,7 +65,7 @@ function getCommitsFromGitHubEvent(): BasicCommit[] {
     }));
 
     console.log('Commits from GitHub event:');
-    formattedCommits.forEach((commit, index) => {
+    formattedCommits.forEach((commit: any, index: any) => {
       console.log(
         `  ${index + 1}. ${commit.sha.substring(0, 7)} - ${commit.message}`
       );
@@ -129,7 +130,7 @@ function getCommitsFromGit(): BasicCommit[] {
     }
 
     const commits = gitOutput.split('\n').map((line) => {
-      const [sha, message, timestamp] = line.split('|');
+      const [sha = '', message = '', timestamp = ''] = line.split('|');
       return {
         sha,
         message,
@@ -164,7 +165,7 @@ function getCommitsFromPush(): BasicCommit[] {
         encoding: 'utf8',
       }).trim();
       commits = gitOutput.split('\n').map((line) => {
-        const [sha, message, timestamp] = line.split('|');
+        const [sha = '', message = '', timestamp = ''] = line.split('|');
         return {
           sha,
           message,
