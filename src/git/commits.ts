@@ -109,13 +109,13 @@ export function getCommitsFromGit(): BasicCommit[] {
         }
       } catch (rangeError) {
         console.log('Git range failed, falling back to recent commits');
-        gitOutput = execSync('git log -10 --format="%H|%s|%ct"', {
+        gitOutput = execSync('git log --oneline --decorate --graph @{u}..', {
           encoding: 'utf8',
         }).trim();
       }
     } else {
       console.log('No valid SHA range, using recent commits');
-      gitOutput = execSync('git log -10 --format="%H|%s|%ct"', {
+      gitOutput = execSync('git log --oneline --decorate --graph @{u}..', {
         encoding: 'utf8',
       }).trim();
     }
