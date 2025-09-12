@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
-import { parseFilesFromDiff, FileChange } from '../utils/diffParser.js';
+import { parseFilesFromDiff, type FileChange } from '../utils/diffParser.js';
 import { extractJiraKey } from '../utils/jiraParser.js';
 
 interface BasicCommit {
@@ -251,20 +251,22 @@ console.log('Jira Key:', jiraKey);
 console.log('Total commits:', allCommits.length);
 console.log('Flagged commits:', flaggedCommits.length);
 
+export let llmData: LLMOutput;
+
 if (flaggedCommits.length > 0) {
-  console.log('\n=== Processing Commits ===');
-  flaggedCommits.forEach((commit, index) => {
-    console.log(
-      `${index + 1}. ${commit.sha.substring(0, 7)} - ${commit.message}`
-    );
-  });
+  // console.log('\n=== Processing Commits ===');
+  // flaggedCommits.forEach((commit, index) => {
+  //   console.log(
+  //     `${index + 1}. ${commit.sha.substring(0, 7)} - ${commit.message}`
+  //   );
+  // });
 
   // Generate final JSON output
-  const llmData = formatForLLM(jiraKey, ref, flaggedCommits);
+  llmData = formatForLLM(jiraKey, ref, flaggedCommits);
 
-  console.log('\n=== LLM DATA OUTPUT ===');
-  console.log(JSON.stringify(llmData, null, 2));
-  console.log('=== END LLM DATA ===');
+  // console.log('\n=== LLM DATA OUTPUT ===');
+  // console.log(JSON.stringify(llmData, null, 2));
+  // console.log('=== END LLM DATA ===');
 } else {
   console.log('No flagged commits found. Skipping LLM processing.');
 }
