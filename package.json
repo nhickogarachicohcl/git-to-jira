@@ -6,7 +6,6 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
-    "start:jira": "tsx src/jira/updateJira.ts",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "prettier:check": "prettier . --check",
