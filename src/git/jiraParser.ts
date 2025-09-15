@@ -41,7 +41,9 @@ export function formatForLLM(
   return {
     jiraKey: jiraKey,
     branchName,
-    ...(remoteUrl && { remoteUrl }),
+    ...(remoteUrl && {
+      remoteUrl: `${remoteUrl}/tree/${branchName}`,
+    }),
     summary: {
       totalCommits: totalCommits,
       totalFilesChanged: totalFilesChanged,

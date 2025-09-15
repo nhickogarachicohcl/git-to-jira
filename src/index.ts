@@ -7,6 +7,7 @@ import {
 import { extractJiraKey, formatForLLM } from './git/jiraParser.js';
 import { summarizeFile } from './llm/index.js';
 import { addComment, getIssue } from './jira/issues.js';
+import { getFooterDisclaimer } from './llm/prompts.js';
 
 const branchName = getCurrentBranchName();
 const jiraKey = extractJiraKey(branchName);
@@ -42,9 +43,10 @@ if (flaggedCommits.length > 0) {
           summary: { commits },
         } = llmData;
         console.log('Summarizing using LLM');
-        const summary = await summarizeFile(JSON.stringify(commits));
+        let summary = await summarizeFile(JSON.stringify(commits));
 
         if (summary) {
+          summary += getFooterDisclaimer(llmData.remoteUrl ?? remoteUrl);
           console.log(`Summarized changes\n${summary}`);
           console.log(`Adding comment in Jira issue ${jiraKey}`);
           // Comment
