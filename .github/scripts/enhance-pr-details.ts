@@ -39,20 +39,19 @@ updatePrDescription(owner, repo, pull_request.number, newDescription)
   .catch(console.error);
 
 
-
 //Update Jira issue status to "In Progress" if it's currently "To Do" or "Open"
 console.log("pull_request:", pull_request);
-console.log("pull_request.title:", pull_request.base.title);
+const prTitle = pull_request.title || pull_request.base?.title || pull_request.head?.title;
+console.log("PR Title:", prTitle);
 
-const jiraId = extractJiraKey(pull_request.base.title);
+const jiraId = extractJiraKey(prTitle || "");
 console.log("Extracted JIRA ID:", jiraId);
 if (jiraId) {
   getIssue(jiraId).then((issue) => {
-    console.log("Fetched JIRA Issue:", JSON.stringify(issue, null, 2));
     const issueStatus = issue.fields.status.name;
     console.log("JIRA Issue Status:", issueStatus);
     if (issueStatus === "To Do" || issueStatus === "Open") {
-      changeJiraStatus(jiraId, "In progress").then(() => {
+      changeJiraStatus(jiraId, "In Progress").then(() => {
         console.log(`JIRA Issue ${jiraId} status changed to "In Progress".`);
       }).catch((error) => {
         console.error("Error changing JIRA issue status:", error);
@@ -61,6 +60,7 @@ if (jiraId) {
     const jiraUrl = `https://hclsw-jirads.atlassian.net/browse/${jiraId}`;
     const jiraLink = `[${jiraId}](${jiraUrl})`;
     jiraSection = `### 🎟️ Jira Ticket\n${jiraLink}`;
+    console.log("JIRA Section to add to PR description:\n", jiraSection);
   }).catch(console.error);
 }else{
   console.log("No JIRA ID found in PR title.");
