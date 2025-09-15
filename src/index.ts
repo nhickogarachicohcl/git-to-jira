@@ -5,8 +5,8 @@ import {
   getCurrentRemoteUrl,
 } from './git/commits.js';
 import { extractJiraKey, formatForLLM } from './git/jiraParser.js';
-import { summarizeFile } from './llm/index.js';
 import { addComment, getIssue } from './jira/issues.js';
+import { summarize } from './llm/index.js';
 import { getFooterDisclaimer } from './llm/prompts.js';
 
 const branchName = getCurrentBranchName();
@@ -43,7 +43,7 @@ if (flaggedCommits.length > 0) {
           summary: { commits },
         } = llmData;
         console.log('Summarizing using LLM');
-        let summary = await summarizeFile(JSON.stringify(commits));
+        let summary = await summarize(JSON.stringify(commits));
 
         if (summary) {
           summary += getFooterDisclaimer(llmData.remoteUrl ?? remoteUrl);
