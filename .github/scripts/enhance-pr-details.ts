@@ -25,9 +25,21 @@ const newDescription = "This PR description was set dynamically by enhance-pr-de
 console.log("Updating PR description...");
 
 console.log("owner:", owner.login || owner.name);
-console.log("repo:", repo.name);
+console.log("repo:", repo);
 console.log("pull_number:", pull_number);
 console.log("newDescription:", newDescription);
+
+
+// Get GitHub context
+const ref: string = process.env.GITHUB_REF || '';
+const eventName: string = process.env.GITHUB_EVENT_NAME || '';
+
+console.log('=== GitHub Actions Context ===');
+console.log('Ref:', ref);
+console.log('Event:', eventName);
+console.log('Test1:', eventName);
+
+
 
 updatePrDescription(owner.login || owner.name, repo.name, pull_number, newDescription)
   .then(() => console.log("PR description updated!"))
