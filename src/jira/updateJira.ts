@@ -9,6 +9,12 @@ async function addJiraComment(jiraId: string, comment: string): Promise<void> {
   } catch (error) {
     handleError('adding comment', error);
   }
+  try {
+    await addComment(jiraId, comment);
+    console.log(`Comment added to issue ${jiraId}.`);
+  } catch (error) {
+    handleError('adding comment', error);
+  }
 }
 
 async function changeJiraStatus(
