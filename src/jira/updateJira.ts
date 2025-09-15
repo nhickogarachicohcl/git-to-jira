@@ -9,12 +9,6 @@ async function addJiraComment(jiraId: string, comment: string): Promise<void> {
   } catch (error) {
     handleError('adding comment', error);
   }
-  try {
-    await addComment(jiraId, comment);
-    console.log(`Comment added to issue ${jiraId}.`);
-  } catch (error) {
-    handleError('adding comment', error);
-  }
 }
 
 async function changeJiraStatus(
@@ -23,7 +17,7 @@ async function changeJiraStatus(
 ): Promise<void> {
   try {
     const transitions = await getTransitions(jiraId);
-    let newStatusId = transitions[newStatus];
+    const newStatusId = transitions[newStatus];
     if (typeof newStatusId === 'string') {
       await changeStatus(jiraId, newStatusId);
       console.log(`Issue ${jiraId} successfully changed to '${newStatus}'.`);
