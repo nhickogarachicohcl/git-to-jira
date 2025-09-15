@@ -81,7 +81,14 @@ let aiSummarySection = `### 🤖 AI Summary\nThis section was automatically adde
 const prData = await getPRGitData(owner, repo, pull_request.number, token);
 const aiSummary = await askAI(JSON.stringify(prData), PR_DESCRIPTION_PROMPT);
 if (aiSummary) {
-  aiSummarySection = `### 🤖 AI Summary\n${aiSummary}`;
+  // Format summary for PR description (Markdown + Atlassian/Jira markup)
+  let formattedSummary = aiSummary
+    .replace(/^h2\.\s*/gm, '## ') // Convert h2. to Markdown
+    .replace(/^New Features:/gm, '**New Features:**')
+    .replace(/^Key Changes & Additions:/gm, '**Key Changes & Additions:**')
+    .replace(/\{\{(.+?)\}\}/g, '`$1`') // Convert {{file}} to inline code
+    .replace(/\{\{(.+?)#(.+?)\}\}/g, '`$1#$2`'); // Convert {{file#symbol}} to inline code
+  aiSummarySection = `### 🤖 AI Summary\n${formattedSummary}`;
 } else {
   console.log("No AI summary generated.");
 }
