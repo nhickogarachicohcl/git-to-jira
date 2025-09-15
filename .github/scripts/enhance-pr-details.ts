@@ -25,7 +25,7 @@ const newDescription = "This PR description was set dynamically by enhance-pr-de
 
 console.log("Updating PR description...");
 
-console.log("owner:", owner);
+console.log("owner:", owner.login || owner.name);
 console.log("repo:", repo);
 console.log("pull_request.number:", pull_request.number);
 console.log("newDescription:", newDescription);
