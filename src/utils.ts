@@ -33,12 +33,13 @@ export const saveProcessedCommits = (
 
 export const isCommitProcessed = (
   issueKey: string,
-  commitHash: string
+  commitHash: string,
+  processedCommits: any
 ): boolean => {
   console.log(
     `Checking if commit on issue ${issueKey} with hash ${commitHash} has been processed`
   );
-  const processedCommits = getProcessedCommits();
+
   const commitsForIssue = processedCommits[issueKey];
   const isProcessed = commitsForIssue
     ? commitsForIssue.includes(commitHash)
@@ -49,11 +50,15 @@ export const isCommitProcessed = (
   return isProcessed;
 };
 
-export const addCommit = (issueKey: string, commitHash: string): void => {
+export const addCommit = (
+  issueKey: string,
+  commitHash: string,
+  processedCommits: any
+): void => {
   console.log(
     `Adding commit to git2jira.commits.json on issue ${issueKey} with hash ${commitHash}`
   );
-  const processedCommits = getProcessedCommits();
+
   if (!processedCommits[issueKey]) {
     console.log(
       `Issue ${issueKey} hasn't been added yet. Initializing with empty array.`

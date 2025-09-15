@@ -9,7 +9,7 @@ import { extractJiraKey, formatForLLM } from './git/jiraParser.js';
 import { addComment, getIssue } from './jira/issues.js';
 import { summarize } from './llm/index.js';
 import { getFooterDisclaimer } from './llm/prompts.js';
-import { addCommit, isCommitProcessed } from './utils.js';
+import { addCommit, getProcessedCommits, isCommitProcessed } from './utils.js';
 
 const branchName = getCurrentBranchName();
 const jiraKey = extractJiraKey(branchName) ?? '';
@@ -17,8 +17,9 @@ const remoteUrl = getCurrentRemoteUrl();
 const allCommits = getCommitsFromGit();
 const unfilteredFlaggedCommits = findFlaggedCommits(allCommits);
 // Filter already commented commits
+const processedCommits = getProcessedCommits();
 const flaggedCommits = unfilteredFlaggedCommits.filter((commit) => {
-  return !isCommitProcessed(jiraKey, commit.sha);
+  return !isCommitProcessed(jiraKey, commit.sha, processedCommits);
 });
 
 console.log(flaggedCommits);
@@ -69,7 +70,10 @@ if (flaggedCommits.length > 0) {
           // Comment
           await addComment(jiraKey, summary);
           // Save processed commits to json
-          flaggedCommits.forEach((commit) => addCommit(jiraKey, commit.sha));
+
+          flaggedCommits.forEach((commit) =>
+            addCommit(jiraKey, commit.sha, processedCommits)
+          );
           console.log('Successfully added comment!');
         }
       }
