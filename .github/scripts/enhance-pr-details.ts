@@ -1,6 +1,7 @@
 import { Octokit } from "@octokit/rest";
 import fs from "fs";
 import { extractJiraKey, formatForLLM } from "../../src/git/jiraParser";
+import { getPRGitData } from "../../src/git/PRdata";
 import { getIssue } from "../../src/jira/issues";
 import {
   findFlaggedCommits,
@@ -8,7 +9,8 @@ import {
   getCurrentBranchName,
   getCurrentRemoteUrl,
 } from '../../src/git/commits';
-import { summarizeFile } from '../../src/llm/index';
+import { askAI } from '../../src/llm/index';
+import { PR_DESCRIPTION_PROMPT } from '../../src/llm/prompts';
 
 //Load event payload
 const eventPath = process.env.GITHUB_EVENT_PATH!;
@@ -26,49 +28,6 @@ async function updatePrDescription(owner: string, repo: string, pull_number: num
   });
 }
 
-async function getPRSummary() {
-  const branchName = getCurrentBranchName();
-  const jiraKey = extractJiraKey(branchName);
-  const remoteUrl = getCurrentRemoteUrl();
-  const flaggedCommits = getCommitsFromGit();
-
-  let llmData;
-  if (flaggedCommits.length > 0) {
-    console.log('\n=== Processing Commits ===');
-    flaggedCommits.forEach((commit, index) => {
-      console.log(
-        `${index + 1}. ${commit.sha.substring(0, 7)} - ${commit.message}`
-      );
-    });
-
-    // Generate final JSON output
-    llmData = formatForLLM(jiraKey, branchName, flaggedCommits, remoteUrl);
-
-    // LLM
-    if (llmData && llmData.jiraKey) {
-      console.log('\n=== Initializing LLM Summarizer ===');
-      try {
-          // Summarize changes
-          const {
-            summary: { commits },
-          } = llmData;
-          console.log('Summarizing using LLM');
-          const summary = await summarizeFile(JSON.stringify(commits));
-
-          if (summary) {
-            console.log(`Summarized changes\n${summary}`);
-            return summary;
-          }
-      } catch (error) {
-        console.error('Error summarizing changes');
-      }
-    }
-  } else {
-    console.log('No flagged commits found. Skipping LLM processing.');
-  }
-}
-
-
 
 const owner = event.repository.owner.login;
 const repo = event.repository.name;
@@ -80,6 +39,15 @@ console.log("owner:", owner);
 console.log("repo:", repo);
 console.log("pull_request.number:", pull_request.number);
 console.log("newDescription:", newDescription);
+
+
+getPRGitData(owner, repo, pull_request.number, token).then(async (data) => {
+    console.log("PR Git Data:", data);
+    return data;
+}).catch(console.error);
+
+
+
 
 
 
@@ -110,10 +78,17 @@ if (jiraId) {
 }
 // --- 5. Define the new AI Summary section ---
 let aiSummarySection = `### 🤖 AI Summary\nThis section was automatically added. AI summary will be added here.`;
-getPRSummary().then((summary) => {
-  if(summary){
-    console.log("AI Summary:", summary);
-    aiSummarySection = `\n\n### 🤖 AI Summary\n${summary}`;
+getPRGitData(owner, repo, pull_request.number, token).then((prData) => {
+  if(prData.commits.length > 0){
+    console.log("AI Summary:", prData.commits.length);
+    const prSummary = askAI(JSON.stringify(prData), PR_DESCRIPTION_PROMPT).then((summary) => {
+      console.log("AI Summary:", summary);
+      return summary;
+    }).catch((error) => {
+      console.error("Error getting AI summary:", error);
+      return null;
+    });
+    aiSummarySection = `\n\n### 🤖 AI Summary\n${prSummary}`;
   } else {
     console.log("No AI summary generated.");}
 }).catch((error) => {
