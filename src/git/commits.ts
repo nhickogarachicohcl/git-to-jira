@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { execSync } from 'child_process';
 import { parseFilesFromDiff, type FileChange } from './diffParser.js';
+import { CONFIG } from '../config.js';
 
 export interface BasicCommit {
   sha: string;
@@ -180,7 +181,9 @@ export function getCommitsFromPush(): BasicCommit[] {
 
 // Filter for flagged commits
 export function findFlaggedCommits(commits: BasicCommit[]): BasicCommit[] {
-  return commits.filter((commit) => commit.message.startsWith('[autocomment]'));
+  return commits.filter((commit) =>
+    commit.message.startsWith(`${CONFIG.commitMessageFlag || '[autocomment]'}`)
+  );
 }
 
 // Get detailed file change data for a specific commit
