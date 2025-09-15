@@ -11,6 +11,18 @@ jobs:
       pull-requests: write # To update the PR description
       contents: read       # To read commit details
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install --save-dev @types/node tsx
+
       - name: Validate Title and Update Description
         run: |
           npx tsx .github/scripts/enhance-pr-details.ts
