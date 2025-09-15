@@ -19,14 +19,14 @@ async function updatePrDescription(owner: string, repo: string, pull_number: num
 
 // Usage example:
 const { owner, repo } = event.repository;
-const pull_number = event.pull_request.number;
+const pull_request = event.pull_request;
 const newDescription = "This PR description was set dynamically by enhance-pr-details.ts";
 
 console.log("Updating PR description...");
 
 console.log("owner:", owner.login || owner.name);
 console.log("repo:", repo);
-console.log("pull_number:", pull_number);
+console.log("pull_request:", pull_request);
 console.log("newDescription:", newDescription);
 
 
@@ -41,6 +41,6 @@ console.log('Test1:', eventName);
 
 
 
-updatePrDescription(owner.login || owner.name, repo.name, pull_number, newDescription)
+updatePrDescription(owner.login || owner.name, repo, pull_request.number, newDescription)
   .then(() => console.log("PR description updated!"))
   .catch(console.error);
