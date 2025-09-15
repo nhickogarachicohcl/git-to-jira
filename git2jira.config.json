@@ -1,5 +1,5 @@
 {   
-    "commitMessageFlag": "--autocomment",
+    "commitMessageFlag": "[autocomment]",
     "llm": {
         "systemPrompt": "",
         "maxTokens": 200
