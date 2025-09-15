@@ -78,22 +78,13 @@ if (jiraId) {
 }
 // --- 5. Define the new AI Summary section ---
 let aiSummarySection = `### 🤖 AI Summary\nThis section was automatically added. AI summary will be added here.`;
-getPRGitData(owner, repo, pull_request.number, token).then((prData) => {
-  if(prData.commits.length > 0){
-    console.log("AI Summary:", prData.commits.length);
-    askAI(JSON.stringify(prData), PR_DESCRIPTION_PROMPT).then((summary) => {
-      console.log("AI Summary:", summary);
-      aiSummarySection = `\n\n### 🤖 AI Summary\n${summary}`;
-    }).catch((error) => {
-      console.error("Error getting AI summary:", error);
-      return null;
-    });
-    
-  } else {
-    console.log("No AI summary generated.");}
-}).catch((error) => {
-  console.error("Error getting AI summary:", error);
-});
+const prData = await getPRGitData(owner, repo, pull_request.number, token);
+const aiSummary = await askAI(JSON.stringify(prData), PR_DESCRIPTION_PROMPT);
+if (aiSummary) {
+  aiSummarySection = `### 🤖 AI Summary\n${aiSummary}`;
+} else {
+  console.log("No AI summary generated.");
+}
 
 // --- 6. Construct the new PR body ---
 const currentBody = pull_request.body || '';
