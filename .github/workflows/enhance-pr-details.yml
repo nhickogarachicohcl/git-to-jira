@@ -1,0 +1,24 @@
+name: Enhance and Update PR Details
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize] # Triggers on creation, title edits, and new pushes
+
+jobs:
+  enhance-and-validate:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # To update the PR description
+      contents: read       # To read commit details
+    steps:
+      - name: Validate Title and Update Description
+        run: |
+          npx tsx .github/scripts/enhance-pr-details.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
