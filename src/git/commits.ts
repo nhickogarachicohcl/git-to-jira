@@ -130,7 +130,7 @@ export function getCommitsFromGit(): BasicCommit[] {
         const hasUpstream = hasUpstreamBranch();
         let gitCommand = 'git log -10 --format="%H|%s|%ct"';
         if (hasUpstream) {
-          gitCommand = 'git log -10 --format="%H|%s|%ct" @{u}..';
+          gitCommand = 'git log -10 --format="%H|%s|%ct"';
         }
 
         gitOutput = execSync(gitCommand, {
@@ -143,7 +143,7 @@ export function getCommitsFromGit(): BasicCommit[] {
       const hasUpstream = hasUpstreamBranch();
       let gitCommand = 'git log -10 --format="%H|%s|%ct"';
       if (hasUpstream) {
-        gitCommand = 'git log -10 --format="%H|%s|%ct" @{u}..';
+        gitCommand = 'git log -10 --format="%H|%s|%ct"';
       }
 
       gitOutput = execSync(gitCommand, {
