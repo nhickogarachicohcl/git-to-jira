@@ -47,8 +47,6 @@ async function getPRSummary() {
     // LLM
     if (llmData && llmData.jiraKey) {
       console.log('\n=== Initializing LLM Summarizer ===');
-      // get Jira issue first
-      const { jiraKey } = llmData;
       try {
           // Summarize changes
           const {
@@ -111,7 +109,16 @@ if (jiraId) {
   console.log("No JIRA ID found in PR title.");
 }
 // --- 5. Define the new AI Summary section ---
-const aiSummarySection = `### 🤖 AI Summary\nThis section was automatically added. AI summary will be added here.`;
+let aiSummarySection = `### 🤖 AI Summary\nThis section was automatically added. AI summary will be added here.`;
+getPRSummary().then((summary) => {
+  if(summary){
+    console.log("AI Summary:", summary);
+    aiSummarySection = `\n\n### 🤖 AI Summary\n${summary}`;
+  } else {
+    console.log("No AI summary generated.");}
+}).catch((error) => {
+  console.error("Error getting AI summary:", error);
+});
 
 // --- 6. Construct the new PR body ---
 const currentBody = pull_request.body || '';
