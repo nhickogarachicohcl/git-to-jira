@@ -1,5 +1,6 @@
 import {
   getCommitDetails,
+  hasUpstreamBranch,
   type BasicCommit,
   type DetailedCommit,
 } from './commits.js';
@@ -26,7 +27,8 @@ export function formatForLLM(
   jiraKey: string | null,
   branchName: string,
   flaggedCommits: BasicCommit[],
-  remoteUrl?: string
+  remoteUrl?: string,
+  hasUpstream = false
 ): LLMOutput {
   // Get detailed data for each commit
   const commitDetails = flaggedCommits.map(getCommitDetails);
@@ -41,9 +43,10 @@ export function formatForLLM(
   return {
     jiraKey: jiraKey,
     branchName,
-    ...(remoteUrl && {
-      remoteUrl: `${remoteUrl}/tree/${branchName}`,
-    }),
+    ...(remoteUrl &&
+      hasUpstream && {
+        remoteUrl: `${remoteUrl}/tree/${branchName}`,
+      }),
     summary: {
       totalCommits: totalCommits,
       totalFilesChanged: totalFilesChanged,

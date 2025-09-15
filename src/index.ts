@@ -3,6 +3,7 @@ import {
   getCommitsFromGit,
   getCurrentBranchName,
   getCurrentRemoteUrl,
+  hasUpstreamBranch,
 } from './git/commits.js';
 import { extractJiraKey, formatForLLM } from './git/jiraParser.js';
 import { addComment, getIssue } from './jira/issues.js';
@@ -14,6 +15,7 @@ const jiraKey = extractJiraKey(branchName);
 const remoteUrl = getCurrentRemoteUrl();
 const allCommits = getCommitsFromGit();
 const flaggedCommits = findFlaggedCommits(allCommits);
+const hasUpstream = hasUpstreamBranch();
 
 let llmData;
 if (flaggedCommits.length > 0) {
@@ -25,7 +27,13 @@ if (flaggedCommits.length > 0) {
   });
 
   // Generate final JSON output
-  llmData = formatForLLM(jiraKey, branchName, flaggedCommits, remoteUrl);
+  llmData = formatForLLM(
+    jiraKey,
+    branchName,
+    flaggedCommits,
+    remoteUrl,
+    hasUpstream
+  );
 
   // LLM
   if (llmData && llmData.jiraKey) {
@@ -46,7 +54,10 @@ if (flaggedCommits.length > 0) {
         let summary = await summarize(JSON.stringify(commits));
 
         if (summary) {
-          summary += getFooterDisclaimer(llmData.remoteUrl ?? remoteUrl);
+          summary += getFooterDisclaimer(
+            llmData.remoteUrl ?? remoteUrl,
+            hasUpstream
+          );
           console.log(`Summarized changes\n${summary}`);
           console.log(`Adding comment in Jira issue ${jiraKey}`);
           // Comment
