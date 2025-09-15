@@ -41,7 +41,9 @@ updatePrDescription(owner, repo, pull_request.number, newDescription)
 
 
 //Update Jira issue status to "In Progress" if it's currently "To Do" or "Open"
+console.log("pull_request:", pull_request);
 console.log("pull_request.title:", pull_request.base.title);
+
 const jiraId = extractJiraKey(pull_request.base.title);
 console.log("Extracted JIRA ID:", jiraId);
 if (jiraId) {
