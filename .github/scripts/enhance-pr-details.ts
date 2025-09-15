@@ -81,14 +81,14 @@ let aiSummarySection = `### 🤖 AI Summary\nThis section was automatically adde
 getPRGitData(owner, repo, pull_request.number, token).then((prData) => {
   if(prData.commits.length > 0){
     console.log("AI Summary:", prData.commits.length);
-    const prSummary = askAI(JSON.stringify(prData), PR_DESCRIPTION_PROMPT).then((summary) => {
+    askAI(JSON.stringify(prData), PR_DESCRIPTION_PROMPT).then((summary) => {
       console.log("AI Summary:", summary);
-      return summary;
+      aiSummarySection = `\n\n### 🤖 AI Summary\n${summary}`;
     }).catch((error) => {
       console.error("Error getting AI summary:", error);
       return null;
     });
-    aiSummarySection = `\n\n### 🤖 AI Summary\n${prSummary}`;
+    
   } else {
     console.log("No AI summary generated.");}
 }).catch((error) => {
