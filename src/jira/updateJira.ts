@@ -41,11 +41,3 @@ async function getJiraIssue(jiraId: string): Promise<void> {
     handleError('fetching issue', error);
   }
 }
-
-const jiraId = 'DXQ-45657'; // Example Jira issue key
-const comment = 'NEW 123456678 in TS-----This is a test comment added via API.';
-const newStatus = 'Blocked'; // Example status name
-
-changeJiraStatus(jiraId, newStatus);
-addJiraComment(jiraId, comment);
-//getJiraIssue(jiraId);
