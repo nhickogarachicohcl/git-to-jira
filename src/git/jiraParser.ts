@@ -7,6 +7,7 @@ import {
 export interface LLMOutput {
   jiraKey: string | null;
   branchName: string;
+  remoteUrl?: string;
   summary: {
     totalCommits: number;
     totalFilesChanged: number;
@@ -24,7 +25,8 @@ export function extractJiraKey(branchName: string): string | null {
 export function formatForLLM(
   jiraKey: string | null,
   branchName: string,
-  flaggedCommits: BasicCommit[]
+  flaggedCommits: BasicCommit[],
+  remoteUrl?: string
 ): LLMOutput {
   // Get detailed data for each commit
   const commitDetails = flaggedCommits.map(getCommitDetails);
@@ -39,6 +41,7 @@ export function formatForLLM(
   return {
     jiraKey: jiraKey,
     branchName,
+    ...(remoteUrl && { remoteUrl }),
     summary: {
       totalCommits: totalCommits,
       totalFilesChanged: totalFilesChanged,

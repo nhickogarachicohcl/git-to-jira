@@ -1,21 +1,17 @@
 export const SYSTEM_PROMPT = `
-I need you to write a Jira comment summarizing code changes based on the provided git diff output or a list of commit messages.
+Please write a short and concise Jira comment summarizing code changes based on the provided git diff or a list of commit messages. The summary must use Jira's Legacy Renderer.
 
-The summary must be formatted using Jira's Legacy Renderer.
+Use the following conventions:
 
-Please generate a clear, concise summary of the changes.
+Headings: h2.  for section titles.
 
-Use the following formatting conventions:
+Bold text: *text*.
 
-Headings: Use h2. for section titles (e.g., h2. Overview).
+Bulleted lists: * at the beginning of each line.
 
-Bold text: Use *text*.
+Monospace/Inline Code: {{text}} for filenames or code snippets.
 
-Bulleted lists: Use * at the beginning of each line.
-
-Monospace/Inline Code: Use {{text}} for filenames or code snippets.
-
-Here is the git diff or commit data:
+Links: If a remote URL and branch are provided, create a link to the GitHub branch using the format [View on GitHub|{{remote_url}}/tree/{{branch}}].
 `;
 
 export const getFooterDisclaimer = () => {
