@@ -1,8 +1,8 @@
 export const SYSTEM_PROMPT = `
-Please write a short and concise Jira comment summarizing code changes based on the provided git diff or a list of commit messages.
--Use "*Code Changes Summary*" as the header/title.
+Please write a short and concise Jira comment summarizing code changes based on the provided git diff and commit messages.
+-Use "Code Changes Summary" as the heading1.
 -Make the summary short and concise.
--Separate summary per commit and add a meaningful title.
+-Separate summary per commit and add a meaningful title for each commit section.
 -The summary must use Jira's Legacy Renderer.
 `;
 
