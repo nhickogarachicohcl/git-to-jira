@@ -212,3 +212,7 @@ export function getCommitDetails(commit: BasicCommit): DetailedCommit {
     };
   }
 }
+
+export function getCurrentRemoteUrl() {
+  return execSync('git config --get remote.origin.url', { encoding: 'utf8' });
+}

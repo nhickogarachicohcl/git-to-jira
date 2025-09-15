@@ -2,6 +2,7 @@ import {
   findFlaggedCommits,
   getCommitsFromGit,
   getCurrentBranchName,
+  getCurrentRemoteUrl,
 } from './git/commits.js';
 import { extractJiraKey, formatForLLM } from './git/jiraParser.js';
 import { summarizeFile } from './llm/index.js';
@@ -9,6 +10,7 @@ import { addComment, getIssue } from './jira/issues.js';
 
 const branchName = getCurrentBranchName();
 const jiraKey = extractJiraKey(branchName);
+const remoteUrl = getCurrentRemoteUrl();
 const allCommits = getCommitsFromGit();
 const flaggedCommits = findFlaggedCommits(allCommits);
 
@@ -22,7 +24,7 @@ if (flaggedCommits.length > 0) {
   });
 
   // Generate final JSON output
-  llmData = formatForLLM(jiraKey, branchName, flaggedCommits);
+  llmData = formatForLLM(jiraKey, branchName, flaggedCommits, remoteUrl);
 
   // LLM
   if (llmData && llmData.jiraKey) {
