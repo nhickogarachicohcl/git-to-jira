@@ -12,6 +12,7 @@ const eventName: string = process.env.GITHUB_EVENT_NAME || '';
 console.log('=== GitHub Actions Context ===');
 console.log('Ref:', ref);
 console.log('Event:', eventName);
+console.log('Test1:', eventName);
 
 // Main execution
 const branchName = getCurrentBranchName(ref);
