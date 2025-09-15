@@ -1,6 +1,5 @@
 import {
   getCommitDetails,
-  hasUpstreamBranch,
   type BasicCommit,
   type DetailedCommit,
 } from './commits.js';
