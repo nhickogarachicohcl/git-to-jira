@@ -1,3 +1,4 @@
+import { CONFIG, DEFAULT_JIRA_ISSUE_KEY_REGEX_STRING } from './config.js';
 import {
   findFlaggedCommits,
   getCommitsFromGit,
@@ -13,8 +14,13 @@ import { addCommit, getProcessedCommits, isCommitProcessed } from './utils.js';
 
 export async function runAutocomment() {
   console.log('\n=====RUNNING AUTOCOMMENT=====\n');
+  const { jira } = CONFIG;
+
+  const jiraKeyRegexString =
+    jira?.issueKeyRegexString || DEFAULT_JIRA_ISSUE_KEY_REGEX_STRING;
+
   const branchName = getCurrentBranchName();
-  const jiraKey = extractJiraKey(branchName) ?? '';
+  const jiraKey = extractJiraKey(branchName, jiraKeyRegexString) ?? '';
   const remoteUrl = getCurrentRemoteUrl();
   const allCommits = getCommitsFromGit();
   const unfilteredFlaggedCommits = findFlaggedCommits(allCommits);

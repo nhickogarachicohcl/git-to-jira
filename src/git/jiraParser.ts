@@ -1,3 +1,4 @@
+import { CONFIG } from '../config.js';
 import {
   getCommitDetails,
   type BasicCommit,
@@ -16,9 +17,30 @@ export interface LLMOutput {
 }
 
 // Extract Jira key from branch name
-export function extractJiraKey(branchName: string): string | null {
-  const jiraMatch = branchName.match(/([A-Z]+-\d+)/);
-  return jiraMatch?.[1] || null;
+export function extractJiraKey(
+  branchName: string,
+  regexString: string
+): string | null {
+  console.log('Extracting Jira key');
+  try {
+    const regex = new RegExp(regexString);
+    const jiraMatch = branchName.match(regex);
+    const jiraKey = jiraMatch?.[1] || null;
+
+    if (!jiraKey) {
+      console.error(
+        'Unable to extract Jira key. Provide a valid branch name or regex'
+      );
+      return null;
+    }
+    console.log(`Extracted Jira key: ${jiraKey}`);
+    return jiraKey;
+  } catch {
+    console.error(
+      'Unable to extract Jira key. Provide a valid branch name or regex'
+    );
+    return null;
+  }
 }
 
 // Format final JSON output
