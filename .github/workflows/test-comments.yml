@@ -1,15 +1,7 @@
-name: Test Comments
-
-on:
-  issue_comment:
-    types: [created]
-
+name: Simple Test
+on: push
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Test comment trigger
-        run: |
-          echo "Comment detected!"
-          echo "Event: ${{ github.event_name }}"
-          echo "Comment: ${{ github.event.comment.body }}"
+      - run: echo "Hello"
