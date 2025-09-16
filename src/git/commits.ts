@@ -78,7 +78,7 @@ export function getCommitsFromGitHubEvent(): BasicCommit[] {
     }));
 
     console.log('Commits from GitHub event:');
-    formattedCommits.forEach((commit, index) => {
+    formattedCommits.forEach((commit: any, index: any) => {
       console.log(
         `  ${index + 1}. ${commit.sha.substring(0, 7)} - ${commit.message}`
       );
@@ -158,7 +158,7 @@ export function getCommitsFromGit(): BasicCommit[] {
 
     console.log('GIT OUTPUT', gitOutput);
     const commits = gitOutput.split('\n').map((line) => {
-      const [sha, message, timestamp] = line.split('|');
+      const [sha = '', message = '', timestamp = ''] = line.split('|');
       return {
         sha,
         message,
@@ -193,7 +193,7 @@ export function getCommitsFromPush(): BasicCommit[] {
         encoding: 'utf8',
       }).trim();
       commits = gitOutput.split('\n').map((line) => {
-        const [sha, message, timestamp] = line.split('|');
+        const [sha = '', message = '', timestamp = ''] = line.split('|');
         return {
           sha,
           message,

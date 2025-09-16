@@ -7,16 +7,19 @@ const PROCESSED_COMMITS_PATH = path.join(
   'git2jira.commits.json'
 );
 
-export const getProcessedCommits = () => {
+export const getProcessedCommits = (): object => {
   try {
     console.log('Getting processed commits...');
     return JSON.parse(fs.readFileSync(PROCESSED_COMMITS_PATH, 'utf8'));
-  } catch (error) {
+  } catch (error: unknown) {
     console.log('No processed commits. Returning an empty object.');
-    if (error.code === 'ENOENT') {
-      return {};
+    if (error instanceof Error && 'code' in error) {
+      if (error.code === 'ENOENT') {
+        return {};
+      }
     }
-    throw error;
+
+    throw new Error('An unexpected error occurred: ' + error);
   }
 };
 

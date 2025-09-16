@@ -11,77 +11,81 @@ import { summarize } from './llm/index.js';
 import { getFooterDisclaimer } from './llm/prompts.js';
 import { addCommit, getProcessedCommits, isCommitProcessed } from './utils.js';
 
-const branchName = getCurrentBranchName();
-const jiraKey = extractJiraKey(branchName) ?? '';
-const remoteUrl = getCurrentRemoteUrl();
-const allCommits = getCommitsFromGit();
-const unfilteredFlaggedCommits = findFlaggedCommits(allCommits);
-// Filter already commented commits
-const processedCommits = getProcessedCommits();
-const flaggedCommits = unfilteredFlaggedCommits.filter((commit) => {
-  return !isCommitProcessed(jiraKey, commit.sha, processedCommits);
-});
-
-console.log(flaggedCommits);
-const hasUpstream = hasUpstreamBranch();
-
-let llmData;
-if (flaggedCommits.length > 0) {
-  console.log('\n=== Processing Commits ===');
-  flaggedCommits.forEach((commit, index) => {
-    console.log(
-      `${index + 1}. ${commit.sha.substring(0, 7)} - ${commit.message}`
-    );
+async function main() {
+  const branchName = getCurrentBranchName();
+  const jiraKey = extractJiraKey(branchName) ?? '';
+  const remoteUrl = getCurrentRemoteUrl();
+  const allCommits = getCommitsFromGit();
+  const unfilteredFlaggedCommits = findFlaggedCommits(allCommits);
+  // Filter already commented commits
+  const processedCommits = getProcessedCommits();
+  const flaggedCommits = unfilteredFlaggedCommits.filter((commit) => {
+    return !isCommitProcessed(jiraKey, commit.sha, processedCommits);
   });
 
-  // Generate final JSON output
-  llmData = formatForLLM(
-    jiraKey,
-    branchName,
-    flaggedCommits,
-    remoteUrl,
-    hasUpstream
-  );
+  console.log(flaggedCommits);
+  const hasUpstream = hasUpstreamBranch();
 
-  // LLM
-  if (llmData && llmData.jiraKey) {
-    console.log('\n=== Initializing LLM Summarizer ===');
-    // get Jira issue first
-    const { jiraKey } = llmData;
-    try {
-      console.log('Fetching Jira issue');
-      const jiraIssue = await getIssue(jiraKey);
+  let llmData;
+  if (flaggedCommits.length > 0) {
+    console.log('\n=== Processing Commits ===');
+    flaggedCommits.forEach((commit, index) => {
+      console.log(
+        `${index + 1}. ${commit.sha.substring(0, 7)} - ${commit.message}`
+      );
+    });
 
-      if (jiraIssue && jiraIssue.id) {
-        console.log(`Found Jira issue ${jiraKey}`);
-        // Summarize changes
-        const {
-          summary: { commits },
-        } = llmData;
-        console.log('Summarizing using LLM');
-        let summary = await summarize(JSON.stringify(commits));
-        if (summary) {
-          summary += getFooterDisclaimer(
-            llmData.remoteUrl ?? remoteUrl,
-            hasUpstream
-          );
-          console.log(`Summarized changes\n${summary}`);
-          console.log(`Adding comment in Jira issue ${jiraKey}`);
-          // Comment
-          await addComment(jiraKey, summary);
-          // Save processed commits to json
+    // Generate final JSON output
+    llmData = formatForLLM(
+      jiraKey,
+      branchName,
+      flaggedCommits,
+      remoteUrl,
+      hasUpstream
+    );
 
-          flaggedCommits.forEach((commit) =>
-            addCommit(jiraKey, commit.sha, processedCommits)
-          );
-          console.log('Successfully added comment!');
+    // LLM
+    if (llmData && llmData.jiraKey) {
+      console.log('\n=== Initializing LLM Summarizer ===');
+      // get Jira issue first
+      const { jiraKey } = llmData;
+      try {
+        console.log('Fetching Jira issue');
+        const jiraIssue = await getIssue(jiraKey);
+
+        if (jiraIssue && jiraIssue.id) {
+          console.log(`Found Jira issue ${jiraKey}`);
+          // Summarize changes
+          const {
+            summary: { commits },
+          } = llmData;
+          console.log('Summarizing using LLM');
+          let summary = await summarize(JSON.stringify(commits));
+          if (summary) {
+            summary += getFooterDisclaimer(
+              llmData.remoteUrl ?? remoteUrl,
+              hasUpstream
+            );
+            console.log(`Summarized changes\n${summary}`);
+            console.log(`Adding comment in Jira issue ${jiraKey}`);
+            // Comment
+            await addComment(jiraKey, summary);
+            // Save processed commits to json
+
+            flaggedCommits.forEach((commit) =>
+              addCommit(jiraKey, commit.sha, processedCommits)
+            );
+            console.log('Successfully added comment!');
+          }
         }
+      } catch (error) {
+        console.error('Error summarizing changes', error);
       }
-    } catch (error) {
-      console.error('Error summarizing changes', error);
     }
+    console.log(JSON.stringify(llmData, null, 2));
+  } else {
+    console.log('No flagged commits found. Skipping LLM processing.');
   }
-  console.log(JSON.stringify(llmData, null, 2));
-} else {
-  console.log('No flagged commits found. Skipping LLM processing.');
 }
+
+main();
