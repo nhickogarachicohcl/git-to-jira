@@ -11,7 +11,7 @@ import { summarize } from './llm/index.js';
 import { getFooterDisclaimer } from './llm/prompts.js';
 import { addCommit, getProcessedCommits, isCommitProcessed } from './utils.js';
 
-async function main() {
+export async function runAutocomment() {
   const branchName = getCurrentBranchName();
   const jiraKey = extractJiraKey(branchName) ?? '';
   const remoteUrl = getCurrentRemoteUrl();
@@ -23,7 +23,6 @@ async function main() {
     return !isCommitProcessed(jiraKey, commit.sha, processedCommits);
   });
 
-  console.log(flaggedCommits);
   const hasUpstream = hasUpstreamBranch();
 
   let llmData;
@@ -86,5 +85,3 @@ async function main() {
     console.log('No flagged commits found. Skipping LLM processing.');
   }
 }
-
-main();
