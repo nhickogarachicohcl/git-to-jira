@@ -2,30 +2,17 @@ name: PR Code Review
 
 on:
   pull_request:
-    types: [opened, edited, synchronize]
-  issue_comment:
-    types: [created]
+    types: [labeled]
 
 jobs:
   code-review:
     runs-on: ubuntu-latest
-    # if: |
-    #   (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[review]')) ||
-    #   (github.event_name == 'issue_comment' && github.event.issue.pull_request && github.event.comment.body == '/review')
-    if: github.event_name == 'issue_comment'
+    if: contains(github.event.label.name, 'review-requested')
     permissions:
-      pull-requests: write # To add review comments
-      contents: read       # To read PR files and diffs
-      issues: write        # To respond to issue comments
+      pull-requests: write
+      contents: read
 
     steps:
-      - name: Debug Event Data
-        run: |
-          echo "Event name: ${{ github.event_name }}"
-          echo "Comment body: '${{ github.event.comment.body }}'"
-          echo "Has PR: ${{ !!github.event.issue.pull_request }}"
-          echo "Action: ${{ github.event.action }}"
-
       - name: Check out repository code
         uses: actions/checkout@v4
 
