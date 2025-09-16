@@ -6,7 +6,7 @@ import {
   hasUpstreamBranch,
 } from './git/commits.js';
 import { extractJiraKey, formatForLLM } from './git/jiraParser.js';
-import { addComment, getIssue } from './jira/issues.js';
+import { addJiraComment, getJiraIssue } from './jira/index.js';
 import { summarize } from './llm/index.js';
 import { getFooterDisclaimer } from './llm/prompts.js';
 import { addCommit, getProcessedCommits, isCommitProcessed } from './utils.js';
@@ -51,7 +51,7 @@ async function main() {
       const { jiraKey } = llmData;
       try {
         console.log('Fetching Jira issue');
-        const jiraIssue = await getIssue(jiraKey);
+        const jiraIssue = await getJiraIssue(jiraKey);
 
         if (jiraIssue && jiraIssue.id) {
           console.log(`Found Jira issue ${jiraKey}`);
@@ -69,7 +69,7 @@ async function main() {
             console.log(`Summarized changes\n${summary}`);
             console.log(`Adding comment in Jira issue ${jiraKey}`);
             // Comment
-            await addComment(jiraKey, summary);
+            await addJiraComment(jiraKey, summary);
             // Save processed commits to json
 
             flaggedCommits.forEach((commit) =>

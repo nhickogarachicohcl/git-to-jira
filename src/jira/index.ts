@@ -2,7 +2,10 @@ import { getIssue, addComment, changeStatus } from './issues.js';
 import { getTransitions } from './references.js';
 import { handleError } from './utils.js';
 
-async function addJiraComment(jiraId: string, comment: string): Promise<void> {
+export async function addJiraComment(
+  jiraId: string,
+  comment: string
+): Promise<void> {
   try {
     await addComment(jiraId, comment);
     console.log(`Comment added to issue ${jiraId}.`);
@@ -11,7 +14,7 @@ async function addJiraComment(jiraId: string, comment: string): Promise<void> {
   }
 }
 
-async function changeJiraStatus(
+export async function changeJiraStatus(
   jiraId: string,
   newStatus: string
 ): Promise<void> {
@@ -22,7 +25,6 @@ async function changeJiraStatus(
       await changeStatus(jiraId, newStatusId);
       console.log(`Issue ${jiraId} successfully changed to '${newStatus}'.`);
     } else {
-      ``;
       handleError(
         'changing status',
         new Error(`Status ID for '${newStatus}' not found.`)
@@ -33,10 +35,11 @@ async function changeJiraStatus(
   }
 }
 
-async function getJiraIssue(jiraId: string): Promise<void> {
+export async function getJiraIssue(jiraId: string): Promise<any> {
   try {
     const issue = await getIssue(jiraId);
     console.log('Fetched Issue:', JSON.stringify(issue, null, 2));
+    return issue;
   } catch (error) {
     handleError('fetching issue', error);
   }
