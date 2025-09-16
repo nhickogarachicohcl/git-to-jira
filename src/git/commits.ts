@@ -212,7 +212,9 @@ export function getCommitsFromPush(): BasicCommit[] {
 // Filter for flagged commits
 export function findFlaggedCommits(commits: BasicCommit[]): BasicCommit[] {
   return commits.filter((commit) =>
-    commit.message.includes(`${CONFIG.commitMessageFlag || '[autocomment]'}`)
+    commit.message.includes(
+      `${CONFIG.git?.commitMessageFlag || '[autocomment]'}`
+    )
   );
 }
 

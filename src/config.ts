@@ -4,7 +4,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 interface Git2JiraConfig {
-  commitMessageFlag?: string;
+  git?: {
+    commitMessageFlag?: string;
+  };
   llm?: {
     systemPrompt?: string;
     maxTokens?: number;

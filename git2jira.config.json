@@ -1,5 +1,7 @@
-{   
-    "commitMessageFlag": "[autocomment]",
+{
+    "git": {
+        "commitMessageFlag": "[autocomment]"
+    },
     "llm": {
         "systemPrompt": "",
         "maxTokens": 200
