@@ -7,7 +7,7 @@ const PROCESSED_COMMITS_PATH = path.join(
   'git2jira.commits.json'
 );
 
-export const getProcessedCommits = (): object => {
+export function getProcessedCommits(): object {
   try {
     console.log('Getting processed commits...');
     return JSON.parse(fs.readFileSync(PROCESSED_COMMITS_PATH, 'utf8'));
@@ -21,24 +21,22 @@ export const getProcessedCommits = (): object => {
 
     throw new Error('An unexpected error occurred: ' + error);
   }
-};
+}
 
-export const saveProcessedCommits = (
-  commits: Record<string, string[]>
-): void => {
+export function saveProcessedCommits(commits: Record<string, string[]>): void {
   console.log('Saving processed commits...');
   console.log(commits);
   const data = JSON.stringify(commits, null, 2);
   fs.mkdirSync(path.dirname(PROCESSED_COMMITS_PATH), { recursive: true });
   fs.writeFileSync(PROCESSED_COMMITS_PATH, data, 'utf-8');
   console.log('Saved processed commits.');
-};
+}
 
-export const isCommitProcessed = (
+export function isCommitProcessed(
   issueKey: string,
   commitHash: string,
   processedCommits: any
-): boolean => {
+): boolean {
   console.log(
     `Checking if commit on issue ${issueKey} with hash ${commitHash} has been processed`
   );
@@ -51,13 +49,13 @@ export const isCommitProcessed = (
     `${isProcessed ? 'Commit has been processed' : "Commit hasn't been processed"} `
   );
   return isProcessed;
-};
+}
 
-export const addCommit = (
+export function addCommit(
   issueKey: string,
   commitHash: string,
   processedCommits: any
-): void => {
+): void {
   console.log(
     `Adding commit to git2jira.commits.json on issue ${issueKey} with hash ${commitHash}`
   );
@@ -74,4 +72,4 @@ export const addCommit = (
     processedCommits[issueKey].push(commitHash);
     saveProcessedCommits(processedCommits);
   }
-};
+}
