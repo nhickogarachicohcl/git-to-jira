@@ -6,8 +6,13 @@ dev:
 	npm run dev
 
 build:
+	rm -rf dist
 	npm run build
 
+pack:
+	rm -rf git-to-jira-1.0.0
+	npm pack
+	
 lint:
 	npm run lint
 

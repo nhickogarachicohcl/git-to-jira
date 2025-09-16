@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { runAutocomment } from '../dist/index.js';
+import { main } from '../dist/index.js';
 
 const program = new Command();
 
@@ -11,7 +11,7 @@ program
     'Summarizes your commits using LLM and comments them in Jira ticket.'
   )
   .action(() => {
-    runAutocomment();
+    main();
   });
 
 program.parse(process.argv);

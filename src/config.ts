@@ -18,7 +18,8 @@ interface Git2JiraConfig {
   };
 }
 
-const DEFAULT_CONFIG_FILENAME = 'git2jira.config.json';
+export const DEFAULT_CONFIG_FILENAME = 'git2jira.config.json';
+
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 export const JIRA_BASE_URL = process.env.JIRA_BASE_URL || '';
 export const JIRA_TOKEN = process.env.JIRA_TOKEN || '';

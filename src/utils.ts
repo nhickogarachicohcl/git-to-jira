@@ -1,10 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 
-const PROCESSED_COMMITS_PATH = path.join(
+export const DEFAULT_PROCESSED_COMMITS_DIRNAME = '.git2jira';
+export const DEFAULT_PROCESSED_COMMITS_FILENAME = 'processed_commits.json';
+export const PROCESSED_COMMITS_PATH = path.join(
   process.cwd(),
-  '.git2jira',
-  'git2jira.commits.json'
+  DEFAULT_PROCESSED_COMMITS_DIRNAME,
+  DEFAULT_PROCESSED_COMMITS_FILENAME
 );
 
 export function getProcessedCommits(): object {
@@ -57,7 +59,7 @@ export function addCommit(
   processedCommits: any
 ): void {
   console.log(
-    `Adding commit to git2jira.commits.json on issue ${issueKey} with hash ${commitHash}`
+    `Adding commit to processed_commits.json on issue ${issueKey} with hash ${commitHash}`
   );
 
   if (!processedCommits[issueKey]) {
@@ -71,5 +73,47 @@ export function addCommit(
     console.log(`Adding commit ${commitHash} to processed commits.`);
     processedCommits[issueKey].push(commitHash);
     saveProcessedCommits(processedCommits);
+  }
+}
+
+export function addGitignoreEntry(dirName = DEFAULT_PROCESSED_COMMITS_DIRNAME) {
+  const gitignorePath = path.join(process.cwd(), '.gitignore');
+  const entry = `${dirName}`;
+
+  if (!fs.existsSync(gitignorePath)) {
+    fs.writeFileSync(gitignorePath, '');
+  }
+
+  const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+  if (!gitignoreContent.includes(entry)) {
+    fs.appendFileSync(gitignorePath, `\n${entry}\n`);
+    console.log(`Added "${entry}" to .gitignore.`);
+  }
+}
+
+export function hasGitRepo() {
+  let currentPath = process.cwd();
+
+  // Traverse up the directory tree until the root or a .git directory is found
+  while (currentPath !== path.parse(currentPath).root) {
+    const gitPath = path.join(currentPath, '.git');
+    if (fs.existsSync(gitPath)) {
+      return true;
+    }
+    currentPath = path.dirname(currentPath);
+  }
+
+  return false;
+}
+
+export function validateEnv(requiredVars: string[]) {
+  const missingVars = requiredVars.filter(
+    (varName: string) => !process.env[varName]
+  );
+
+  if (missingVars.length > 0) {
+    const message = `The following required environment variables are missing: ${missingVars.join(', ')}`;
+    console.error(message);
+    process.exit(1);
   }
 }

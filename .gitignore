@@ -141,4 +141,4 @@ vite.config.ts.timestamp-*
 .vite/
 
 # git2jira
-.git2jira
+.git2jira/
