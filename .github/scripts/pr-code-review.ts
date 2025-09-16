@@ -24,27 +24,28 @@ async function postReviewComment(
   });
 }
 
-// Only handle issue_comment events with /review command
-if (event.action !== 'created' || !event.comment || !event.issue.pull_request) {
-  console.log('Not a comment on a PR, skipping...');
+// Only handle labeled events with review-requested label
+if (event.action !== 'labeled' || !event.pull_request) {
+  console.log('Not a label event on a PR, skipping...');
   process.exit(0);
 }
 
-// Check if comment is exactly "/review"
-const commentBody = event.comment.body.trim();
-if (commentBody !== '/review') {
-  console.log("Comment is not exactly '/review', skipping...");
+// Check if the label is "review-requested"
+const labelName = event.label?.name;
+if (labelName !== 'review-requested') {
+  console.log(`Label "${labelName}" is not "review-requested", skipping...`);
   process.exit(0);
 }
 
 const owner = event.repository.owner.login;
 const repo = event.repository.name;
-const pull_number = event.issue.number;
+const pull_number = event.pull_request.number;
 
 console.log('Processing code review request...');
 console.log('Owner:', owner);
 console.log('Repo:', repo);
 console.log('PR Number:', pull_number);
+console.log('Triggered by label:', labelName);
 
 try {
   // Get PR data
@@ -68,7 +69,7 @@ try {
     files: filteredFiles,
   };
 
-  // Code review promp
+  // Code review prompt
   const CODE_REVIEW_PROMPT = `
 You are an experienced code reviewer. Analyze the provided PR data and give a comprehensive code review focused on code quality, best practices, and maintainability.
 
@@ -103,7 +104,7 @@ Be constructive and specific in your feedback. If the code looks good, say so.
 ${aiReview}
 
 ---
-*Review requested via /review command*`;
+*Review requested via "review-requested" label*`;
 
   // Post the review comment
   await postReviewComment(owner, repo, pull_number, reviewComment);
