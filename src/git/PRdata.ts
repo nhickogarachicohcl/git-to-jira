@@ -42,6 +42,7 @@ export async function updatePrDescription(owner: string, repo: string, pull_numb
 
 export async function composeJiraSection(jiraId: string): Promise<string> {
   try {
+    // 1. Update Jira issue status to "In Progress" if it's currently "To Do", "Open", or "Unrefined"
     if (jiraId) {
       const issue = await getIssue(jiraId);
       const issueStatus = issue?.fields?.status?.name;
@@ -52,11 +53,13 @@ export async function composeJiraSection(jiraId: string): Promise<string> {
       } else {
         console.log(`JIRA Issue ${jiraId} is not in a status that can be changed.`);
       }
+      // 2. Create a markdown link to the Jira issue
       const jiraUrl = `https://hclsw-jirads.atlassian.net/browse/${jiraId}`;
       const jiraLink = `[${jiraId}](${jiraUrl})`;
       return `### 🎟️ Jira Ticket\n${jiraLink}`;
     } else {
-      throw new Error("No JIRA ID found in PR title.");
+      console.warn("No JIRA ID found in PR title.");
+      return "";
     }
   } catch (error) {
     console.error("Error composing Jira section:", error);
@@ -67,7 +70,7 @@ export async function composeJiraSection(jiraId: string): Promise<string> {
 export async function composeAISummary(prData: object): Promise<string> {
   try {
     const aiSummary = await askAI(JSON.stringify(prData), PR_DESCRIPTION_PROMPT);
-    
+
     if (aiSummary) {
       console.log("AI Summary generated:", aiSummary);
       return `### 🤖 AI Summary\n${aiSummary}`;
