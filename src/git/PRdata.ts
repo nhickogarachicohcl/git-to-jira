@@ -56,8 +56,7 @@ export async function composeJiraSection(jiraId: string): Promise<string> {
       const jiraLink = `[${jiraId}](${jiraUrl})`;
       return `### 🎟️ Jira Ticket\n${jiraLink}`;
     } else {
-      console.log("No JIRA ID found in PR title.");
-      return "";
+      throw new Error("No JIRA ID found in PR title.");
     }
   } catch (error) {
     console.error("Error composing Jira section:", error);
@@ -66,18 +65,16 @@ export async function composeJiraSection(jiraId: string): Promise<string> {
 }
 
 export async function composeAISummary(prData: object): Promise<string> {
-  const aiSummary = await askAI(JSON.stringify(prData), PR_DESCRIPTION_PROMPT);
-  if (aiSummary) {
-    // Format summary for PR description (Markdown + Atlassian/Jira markup)
-    let formattedSummary = aiSummary
-      .replace(/^h2\.\s*/gm, '## ') // Convert h2. to Markdown
-      .replace(/^New Features:/gm, '**New Features:**')
-      .replace(/^Key Changes & Additions:/gm, '**Key Changes & Additions:**')
-      .replace(/\{\{(.+?)\}\}/g, '`$1`') // Convert {{file}} to inline code
-      .replace(/\{\{(.+?)#(.+?)\}\}/g, '`$1#$2`'); // Convert {{file#symbol}} to inline code
-    return `### 🤖 AI Summary\n${formattedSummary}`;
-  } else {
-    return `### 🤖 AI Summary\nNo AI summary generated.`;
-    console.log("No AI summary generated.");
+  try {
+    const aiSummary = await askAI(JSON.stringify(prData), PR_DESCRIPTION_PROMPT);
+    if (aiSummary) {
+      console.log("AI Summary generated:", aiSummary);
+      return `### 🤖 AI Summary\n${aiSummary}`;
+    } else {
+      throw new Error("AI returned an empty summary.");
+    }
+  } catch (error) {
+    console.error("Error generating AI summary:", error);
+    return `### 🤖 AI Summary\nError generating AI summary.`;
   }
 }

@@ -42,7 +42,9 @@ if (markerIndex !== -1) {
 }
 
 // Assemble all the bot's content into one block
-const botContent = jiraSection + "\n\n" + aiSummarySection + "\n\n"+ `*Last updated: ${new Date().toLocaleString()}*`;
+const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const lastUpdated = new Date().toLocaleString('en-US', { timeZone: userTimezone });
+const botContent = jiraSection + "\n\n" + aiSummarySection + "\n\n" + `*Last updated: ${lastUpdated} (${userTimezone})*`;
 
 // Assemble the new body using the full separator
 const newBody = userDescription.trim() + botSeparator + "\n\n" + botContent;
