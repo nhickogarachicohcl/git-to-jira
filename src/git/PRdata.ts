@@ -67,6 +67,7 @@ export async function composeJiraSection(jiraId: string): Promise<string> {
 export async function composeAISummary(prData: object): Promise<string> {
   try {
     const aiSummary = await askAI(JSON.stringify(prData), PR_DESCRIPTION_PROMPT);
+    
     if (aiSummary) {
       console.log("AI Summary generated:", aiSummary);
       return `### 🤖 AI Summary\n${aiSummary}`;
