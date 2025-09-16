@@ -6,6 +6,7 @@ dotenv.config();
 interface Git2JiraConfig {
   git?: {
     commitMessageFlag?: string;
+    fileIgnores?: string[];
   };
   llm?: {
     systemPrompt?: string;

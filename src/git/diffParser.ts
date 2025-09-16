@@ -1,3 +1,5 @@
+import { CONFIG } from '../config.js';
+
 // File change interface
 export interface FileChange {
   path: string;
@@ -46,11 +48,15 @@ export function parseFilesFromDiff(diffOutput: string): FileChange[] {
     if (line.startsWith('diff --git')) {
       // Before starting a new file, save the data collected for the previous file
       if (currentFile) {
-        files.push({
-          path: currentFile,
-          changes: `+${addedLines}/-${removedLines}`,
-          diff: currentDiff.join('\n'),
-        });
+        const { git } = CONFIG;
+        const ignoreFile = git?.fileIgnores?.includes(currentFile);
+        if (!ignoreFile) {
+          files.push({
+            path: currentFile,
+            changes: `+${addedLines}/-${removedLines}`,
+            diff: currentDiff.join('\n'),
+          });
+        }
       }
 
       // Start new file by extracting file path

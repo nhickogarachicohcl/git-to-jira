@@ -82,7 +82,6 @@ async function main() {
         console.error('Error summarizing changes', error);
       }
     }
-    console.log(JSON.stringify(llmData, null, 2));
   } else {
     console.log('No flagged commits found. Skipping LLM processing.');
   }
