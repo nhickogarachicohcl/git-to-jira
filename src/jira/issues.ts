@@ -6,6 +6,7 @@ export async function getIssue(issueID: string): Promise<any> {
     const res = await axios.get(`/issue/${issueID}`);
     return res.data;
   } catch (error) {
+    console.error('Error response:', (error as any).response);
     handleError('get issue', error);
   }
 }

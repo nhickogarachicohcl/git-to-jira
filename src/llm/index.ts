@@ -24,3 +24,23 @@ export async function summarizeFile(
     return undefined;
   }
 }
+
+export async function askAI(
+  input: string,
+  prompt: string
+): Promise<string | undefined> {
+  try {
+    const response: GenerateContentResponse = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: input,
+      config: {
+        systemInstruction: prompt,
+      },
+    });
+    let responseText = response.text;
+    return responseText;
+  } catch (error) {
+    console.error('Error askingAI:', error);
+    return undefined;
+  }
+}
