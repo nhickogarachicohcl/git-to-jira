@@ -15,16 +15,9 @@ Links: If a remote URL and branch are provided, create a link to the GitHub bran
 `;
 
 export const PR_DESCRIPTION_PROMPT = `
-Please write a short and concise Jira comment summarizing code changes based on the provided git diff or a list of commit messages, add impact of each code change. The summary must use be compatible with format needed in Github's pull request description.
-
-Use the following conventions:
-
-Headings: h2.  for section titles.
-
-Bold text: *text*.
-
-Bulleted lists: * at the beginning of each line.
-
+Please write a short and concise Jira comment summarizing code changes based on the provided git diff or a list of commit messages. 
+Add impact of the code changes to assess if it is a risky change or not. 
+The summary must use be compatible with format needed in Github's pull request description.
 Monospace/Inline Code: {{text}} for filenames or code snippets.
 `;
 
