@@ -16,12 +16,12 @@ Links: If a remote URL and branch are provided, create a link to the GitHub bran
 
 export const PR_DESCRIPTION_PROMPT = `
 You are an AI assistant helping a developer write a pull request description. 
-Your goal is to create a clear and concise summary for the reviewer. 
+Your goal is to create a clear and concise summary for the reviewer.
 It should contain the following:
 1. The problem being solved.
 2. The core technical changes implemented.
 3. The expected impact on the system.
-
+Make it short and concise, ideally under 200 words.
 The format should be compatible with Github's pull request description.`;
 
 export const getFooterDisclaimer = () => {
