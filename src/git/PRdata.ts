@@ -41,22 +41,27 @@ export async function updatePrDescription(owner: string, repo: string, pull_numb
 }
 
 export async function composeJiraSection(jiraId: string): Promise<string> {
-  if (jiraId) {
-    const issue = await getIssue(jiraId);
-    const issueStatus = issue.fields.status.name;
-    console.log("JIRA Issue Status:", issueStatus);
-    if (["To Do", "Open", "Unrefined"].includes(issueStatus)) {
-      await changeJiraStatus(jiraId, "In Progress");
-      console.log(`JIRA Issue ${jiraId} status changed to "In Progress".`);
-    }else{
-      console.log(`JIRA Issue ${jiraId} is not in a status that can be changed.`);
+  try {
+    if (jiraId) {
+      const issue = await getIssue(jiraId);
+      const issueStatus = issue?.fields?.status?.name;
+      console.log("JIRA Issue Status:", issueStatus);
+      if (["To Do", "Open", "Unrefined"].includes(issueStatus)) {
+        await changeJiraStatus(jiraId, "In Progress");
+        console.log(`JIRA Issue ${jiraId} status changed to "In Progress".`);
+      } else {
+        console.log(`JIRA Issue ${jiraId} is not in a status that can be changed.`);
+      }
+      const jiraUrl = `https://hclsw-jirads.atlassian.net/browse/${jiraId}`;
+      const jiraLink = `[${jiraId}](${jiraUrl})`;
+      return `### 🎟️ Jira Ticket\n${jiraLink}`;
+    } else {
+      console.log("No JIRA ID found in PR title.");
+      return "";
     }
-    const jiraUrl = `https://hclsw-jirads.atlassian.net/browse/${jiraId}`;
-    const jiraLink = `[${jiraId}](${jiraUrl})`;
-    return `### 🎟️ Jira Ticket\n${jiraLink}`;
-  }else{
+  } catch (error) {
+    console.error("Error composing Jira section:", error);
     return "";
-    console.log("No JIRA ID found in PR title.");
   }
 }
 
