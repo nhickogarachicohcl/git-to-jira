@@ -1,12 +1,10 @@
 import { GoogleGenAI, GenerateContentResponse } from '@google/genai';
-import { getFooterDisclaimer, SYSTEM_PROMPT } from './prompts.js';
+import { SYSTEM_PROMPT } from './prompts.js';
 import { GEMINI_API_KEY } from '../config.js';
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-export async function summarizeFile(
-  input: string
-): Promise<string | undefined> {
+export async function summarize(input: string): Promise<string | undefined> {
   try {
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
@@ -16,11 +14,29 @@ export async function summarizeFile(
       },
     });
 
+    return response.text;
+  } catch (error) {
+    console.error('Error generating summary:', error);
+    return undefined;
+  }
+}
+
+export async function askAI(
+  input: string,
+  prompt: string
+): Promise<string | undefined> {
+  try {
+    const response: GenerateContentResponse = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: input,
+      config: {
+        systemInstruction: prompt,
+      },
+    });
     let responseText = response.text;
-    responseText += getFooterDisclaimer();
     return responseText;
   } catch (error) {
-    console.error('Error reading file or generating summary:', error);
+    console.error('Error askingAI:', error);
     return undefined;
   }
 }

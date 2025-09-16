@@ -16,6 +16,22 @@ export interface DetailedCommit {
   files: FileChange[];
 }
 
+export function hasUpstreamBranch() {
+  try {
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+      encoding: 'utf-8',
+    }).trim();
+
+    const remote = execSync(`git config --get branch.${branch}.remote`, {
+      encoding: 'utf-8',
+    });
+    return remote.trim().length > 0;
+  } catch (error) {
+    console.log('Current branch has no upstream branch.\n', error);
+    return false;
+  }
+}
+
 export function getCurrentBranchName(branchRef?: string): string {
   if (branchRef) {
     // If a branchRef is provided, use it directly after cleaning it up.
@@ -110,13 +126,27 @@ export function getCommitsFromGit(): BasicCommit[] {
         }
       } catch (rangeError) {
         console.log('Git range failed, falling back to recent commits');
-        gitOutput = execSync('git log -10 --format="%H|%s|%ct" @{u}..', {
+        // Check if there's an upstream
+        const hasUpstream = hasUpstreamBranch();
+        let gitCommand = 'git log -10 --format="%H|%s|%ct"';
+        if (hasUpstream) {
+          gitCommand = 'git log -10 --format="%H|%s|%ct"';
+        }
+
+        gitOutput = execSync(gitCommand, {
           encoding: 'utf8',
         }).trim();
       }
     } else {
       console.log('No valid SHA range, using recent commits');
-      gitOutput = execSync('git log -10 --format="%H|%s|%ct" @{u}..', {
+      // Check if there's an upstream
+      const hasUpstream = hasUpstreamBranch();
+      let gitCommand = 'git log -10 --format="%H|%s|%ct"';
+      if (hasUpstream) {
+        gitCommand = 'git log -10 --format="%H|%s|%ct"';
+      }
+
+      gitOutput = execSync(gitCommand, {
         encoding: 'utf8',
       }).trim();
     }
@@ -214,5 +244,9 @@ export function getCommitDetails(commit: BasicCommit): DetailedCommit {
 }
 
 export function getCurrentRemoteUrl() {
-  return execSync('git config --get remote.origin.url', { encoding: 'utf8' });
+  let remoteUrl = execSync('git config --get remote.origin.url', {
+    encoding: 'utf8',
+  }).trim();
+
+  return remoteUrl.replace('.git', '');
 }

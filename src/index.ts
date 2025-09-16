@@ -3,16 +3,27 @@ import {
   getCommitsFromGit,
   getCurrentBranchName,
   getCurrentRemoteUrl,
+  hasUpstreamBranch,
 } from './git/commits.js';
 import { extractJiraKey, formatForLLM } from './git/jiraParser.js';
-import { summarizeFile } from './llm/index.js';
 import { addComment, getIssue } from './jira/issues.js';
+import { summarize } from './llm/index.js';
+import { getFooterDisclaimer } from './llm/prompts.js';
+import { addCommit, getProcessedCommits, isCommitProcessed } from './utils.js';
 
 const branchName = getCurrentBranchName();
-const jiraKey = extractJiraKey(branchName);
+const jiraKey = extractJiraKey(branchName) ?? '';
 const remoteUrl = getCurrentRemoteUrl();
 const allCommits = getCommitsFromGit();
-const flaggedCommits = findFlaggedCommits(allCommits);
+const unfilteredFlaggedCommits = findFlaggedCommits(allCommits);
+// Filter already commented commits
+const processedCommits = getProcessedCommits();
+const flaggedCommits = unfilteredFlaggedCommits.filter((commit) => {
+  return !isCommitProcessed(jiraKey, commit.sha, processedCommits);
+});
+
+console.log(flaggedCommits);
+const hasUpstream = hasUpstreamBranch();
 
 let llmData;
 if (flaggedCommits.length > 0) {
@@ -24,7 +35,13 @@ if (flaggedCommits.length > 0) {
   });
 
   // Generate final JSON output
-  llmData = formatForLLM(jiraKey, branchName, flaggedCommits, remoteUrl);
+  llmData = formatForLLM(
+    jiraKey,
+    branchName,
+    flaggedCommits,
+    remoteUrl,
+    hasUpstream
+  );
 
   // LLM
   if (llmData && llmData.jiraKey) {
@@ -42,18 +59,26 @@ if (flaggedCommits.length > 0) {
           summary: { commits },
         } = llmData;
         console.log('Summarizing using LLM');
-        const summary = await summarizeFile(JSON.stringify(commits));
-
+        let summary = await summarize(JSON.stringify(commits));
         if (summary) {
+          summary += getFooterDisclaimer(
+            llmData.remoteUrl ?? remoteUrl,
+            hasUpstream
+          );
           console.log(`Summarized changes\n${summary}`);
           console.log(`Adding comment in Jira issue ${jiraKey}`);
           // Comment
           await addComment(jiraKey, summary);
+          // Save processed commits to json
+
+          flaggedCommits.forEach((commit) =>
+            addCommit(jiraKey, commit.sha, processedCommits)
+          );
           console.log('Successfully added comment!');
         }
       }
     } catch (error) {
-      console.error('Error summarizing changes');
+      console.error('Error summarizing changes', error);
     }
   }
   console.log(JSON.stringify(llmData, null, 2));

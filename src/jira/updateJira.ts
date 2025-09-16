@@ -11,7 +11,7 @@ async function addJiraComment(jiraId: string, comment: string): Promise<void> {
   }
 }
 
-async function changeJiraStatus(
+export async function changeJiraStatus(
   jiraId: string,
   newStatus: string
 ): Promise<void> {
