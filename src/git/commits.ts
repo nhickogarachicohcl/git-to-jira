@@ -127,11 +127,7 @@ export function getCommitsFromGit(): BasicCommit[] {
       } catch (rangeError) {
         console.log('Git range failed, falling back to recent commits');
         // Check if there's an upstream
-        const hasUpstream = hasUpstreamBranch();
         let gitCommand = 'git log -10 --format="%H|%s|%ct"';
-        if (hasUpstream) {
-          gitCommand = 'git log -10 --format="%H|%s|%ct"';
-        }
 
         gitOutput = execSync(gitCommand, {
           encoding: 'utf8',
@@ -140,11 +136,7 @@ export function getCommitsFromGit(): BasicCommit[] {
     } else {
       console.log('No valid SHA range, using recent commits');
       // Check if there's an upstream
-      const hasUpstream = hasUpstreamBranch();
       let gitCommand = 'git log -10 --format="%H|%s|%ct"';
-      if (hasUpstream) {
-        gitCommand = 'git log -10 --format="%H|%s|%ct"';
-      }
 
       gitOutput = execSync(gitCommand, {
         encoding: 'utf8',
@@ -246,9 +238,13 @@ export function getCommitDetails(commit: BasicCommit): DetailedCommit {
 }
 
 export function getCurrentRemoteUrl() {
-  let remoteUrl = execSync('git config --get remote.origin.url', {
-    encoding: 'utf8',
-  }).trim();
+  try {
+    const remoteUrl = execSync('git config --get remote.origin.url', {
+      encoding: 'utf8',
+    }).trim();
 
-  return remoteUrl.replace('.git', '');
+    return remoteUrl.replace('.git', '');
+  } catch {
+    return undefined;
+  }
 }

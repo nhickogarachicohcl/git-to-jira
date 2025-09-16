@@ -1,8 +1,6 @@
 # Git-to-Jira: AI-Powered Diff Summaries
 
-
 ## Description
-
 
 This bot automates Jira comments based on your Git commits. It uses an AI to read your code changes and writes a summary for you.
 
@@ -79,3 +77,5 @@ git push origin DXQ-45220_implement_user_search
 - Node.js 20+
 - TypeScript support
 - GitHub Actions enabled
+
+Update
