@@ -77,5 +77,3 @@ git push origin DXQ-45220_implement_user_search
 - Node.js 20+
 - TypeScript support
 - GitHub Actions enabled
-
-Updatessss
