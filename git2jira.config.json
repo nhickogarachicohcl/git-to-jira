@@ -1,6 +1,6 @@
 {
     "git": {
-        "commitMessageFlag": "[autocomment]",
+        "commitMessageFlag": "--autocomment",
         "fileIgnores": ["package-lock.json"]
     },
     "llm": {
