@@ -1,11 +1,14 @@
-{   
-    "commitMessageFlag": "--autocomment",
+{
+    "git": {
+        "commitMessageFlag": "[autocomment]",
+        "fileIgnores": ["package-lock.json"],
+        "lastCommitsCount": 10
+    },
     "llm": {
         "systemPrompt": "",
         "maxTokens": 200
     },
     "jira": {
-        "ticketPrefix": "DXQ",
-        "fieldsToInclude": []
+        "issueKeyRegexString": "([A-Z]+-\\d+)"
     }
 }

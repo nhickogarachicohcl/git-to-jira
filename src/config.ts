@@ -4,18 +4,23 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 interface Git2JiraConfig {
-  commitMessageFlag?: string;
+  git?: {
+    commitMessageFlag?: string;
+    fileIgnores?: string[];
+    lastCommitsCount?: number;
+  };
   llm?: {
     systemPrompt?: string;
     maxTokens?: number;
   };
   jira?: {
-    ticketPrefix: string;
+    issueKeyRegexString?: string;
     fieldsToInclude?: string[];
   };
 }
 
-const DEFAULT_CONFIG_FILENAME = 'git2jira.config.json';
+export const DEFAULT_CONFIG_FILENAME = 'git2jira.config.json';
+export const DEFAULT_JIRA_ISSUE_KEY_REGEX_STRING = '([A-Z]+-\\d+)';
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 export const JIRA_BASE_URL = process.env.JIRA_BASE_URL || '';
 export const JIRA_TOKEN = process.env.JIRA_TOKEN || '';

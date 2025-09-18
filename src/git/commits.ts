@@ -16,6 +16,22 @@ export interface DetailedCommit {
   files: FileChange[];
 }
 
+export function hasUpstreamBranch() {
+  try {
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+      encoding: 'utf-8',
+    }).trim();
+
+    const remote = execSync(`git config --get branch.${branch}.remote`, {
+      encoding: 'utf-8',
+    });
+    return remote.trim().length > 0;
+  } catch (error) {
+    console.log('Current branch has no upstream branch.\n', error);
+    return false;
+  }
+}
+
 export function getCurrentBranchName(branchRef?: string): string {
   if (branchRef) {
     // If a branchRef is provided, use it directly after cleaning it up.
@@ -62,7 +78,7 @@ export function getCommitsFromGitHubEvent(): BasicCommit[] {
     }));
 
     console.log('Commits from GitHub event:');
-    formattedCommits.forEach((commit, index) => {
+    formattedCommits.forEach((commit: any, index: any) => {
       console.log(
         `  ${index + 1}. ${commit.sha.substring(0, 7)} - ${commit.message}`
       );
@@ -110,13 +126,19 @@ export function getCommitsFromGit(): BasicCommit[] {
         }
       } catch (rangeError) {
         console.log('Git range failed, falling back to recent commits');
-        gitOutput = execSync('git log -10 --format="%H|%s|%ct" @{u}..', {
+        // Check if there's an upstream
+        let gitCommand = `git log -${CONFIG.git?.lastCommitsCount ?? '10'} --format="%H|%s|%ct"`;
+
+        gitOutput = execSync(gitCommand, {
           encoding: 'utf8',
         }).trim();
       }
     } else {
       console.log('No valid SHA range, using recent commits');
-      gitOutput = execSync('git log -10 --format="%H|%s|%ct" @{u}..', {
+      // Check if there's an upstream
+      let gitCommand = `git log -${CONFIG.git?.lastCommitsCount ?? '10'} --format="%H|%s|%ct"`;
+
+      gitOutput = execSync(gitCommand, {
         encoding: 'utf8',
       }).trim();
     }
@@ -128,7 +150,7 @@ export function getCommitsFromGit(): BasicCommit[] {
 
     console.log('GIT OUTPUT', gitOutput);
     const commits = gitOutput.split('\n').map((line) => {
-      const [sha, message, timestamp] = line.split('|');
+      const [sha = '', message = '', timestamp = ''] = line.split('|');
       return {
         sha,
         message,
@@ -163,7 +185,7 @@ export function getCommitsFromPush(): BasicCommit[] {
         encoding: 'utf8',
       }).trim();
       commits = gitOutput.split('\n').map((line) => {
-        const [sha, message, timestamp] = line.split('|');
+        const [sha = '', message = '', timestamp = ''] = line.split('|');
         return {
           sha,
           message,
@@ -182,7 +204,9 @@ export function getCommitsFromPush(): BasicCommit[] {
 // Filter for flagged commits
 export function findFlaggedCommits(commits: BasicCommit[]): BasicCommit[] {
   return commits.filter((commit) =>
-    commit.message.includes(`${CONFIG.commitMessageFlag || '[autocomment]'}`)
+    commit.message.includes(
+      `${CONFIG.git?.commitMessageFlag || '[autocomment]'}`
+    )
   );
 }
 
@@ -214,5 +238,13 @@ export function getCommitDetails(commit: BasicCommit): DetailedCommit {
 }
 
 export function getCurrentRemoteUrl() {
-  return execSync('git config --get remote.origin.url', { encoding: 'utf8' });
+  try {
+    const remoteUrl = execSync('git config --get remote.origin.url', {
+      encoding: 'utf8',
+    }).trim();
+
+    return remoteUrl.replace('.git', '');
+  } catch {
+    return undefined;
+  }
 }

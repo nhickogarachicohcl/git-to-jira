@@ -4,7 +4,8 @@ import {
   getCommitsFromPush,
   getCurrentBranchName,
 } from '../../src/git/commits.js';
-import { summarizeFile } from '../../src/llm/index.js';
+import { summarize } from '../../src/llm/index.js';
+import { DEFAULT_JIRA_ISSUE_KEY_REGEX_STRING } from '../../src/config.js';
 // Get GitHub context
 const ref: string = process.env.GITHUB_REF || '';
 const eventName: string = process.env.GITHUB_EVENT_NAME || '';
@@ -16,7 +17,7 @@ console.log('Test1:', eventName);
 
 // Main execution
 const branchName = getCurrentBranchName(ref);
-const jiraKey = extractJiraKey(branchName);
+const jiraKey = extractJiraKey(branchName, DEFAULT_JIRA_ISSUE_KEY_REGEX_STRING);
 const allCommits = getCommitsFromPush();
 const flaggedCommits = findFlaggedCommits(allCommits);
 
@@ -44,7 +45,7 @@ if (flaggedCommits.length > 0) {
     summary: { commits },
   } = llmData;
   console.log('Summarizing using LLM');
-  const summary = await summarizeFile(JSON.stringify(commits));
+  const summary = await summarize(JSON.stringify(commits));
   console.log(`Summary:\n${summary}`);
 } else {
   console.log('No flagged commits found. Skipping LLM processing.');

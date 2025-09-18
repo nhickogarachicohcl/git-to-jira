@@ -1,19 +1,18 @@
 export const SYSTEM_PROMPT = `
-Please write a short and concise Jira comment summarizing code changes based on the provided git diff or a list of commit messages. The summary must use Jira's Legacy Renderer.
+Please write a short and concise Jira comment summarizing code changes based on the provided git diff and commit messages.
+-Use "Code Changes Summary" as the heading1.
+-Only summarize the main points.
+-List major changes in bullet points to make it readable
+-The summary must use Jira's Legacy Renderer.
 
-Use the following conventions:
+Example:
+Code Changes Summary
+- Major change 1
+- Major change 2
 
-Headings: h2.  for section titles.
-
-Bold text: *text*.
-
-Bulleted lists: * at the beginning of each line.
-
-Monospace/Inline Code: {{text}} for filenames or code snippets.
-
-Links: If a remote URL and branch are provided, create a link to the GitHub branch using the format [View on GitHub|{{remote_url}}/tree/{{branch}}].
+Notes: (if there are any notes to include)
 `;
 
-export const getFooterDisclaimer = () => {
-  return '\n\n_Disclaimer: This comment is AI generated_';
+export const getFooterDisclaimer = (remoteUrl: string, hasUpstream = false) => {
+  return `\n\n${hasUpstream ? 'Branch' : 'Remote'} Link: ${remoteUrl} ${!hasUpstream ? '(not pushed to repo yet)' : ''}\n_Disclaimer: This comment is AI generated_`;
 };
