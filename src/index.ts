@@ -21,3 +21,5 @@ export function main() {
     runAutocomment();
   }
 }
+
+console.log("For testing new log")
