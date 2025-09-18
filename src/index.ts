@@ -21,3 +21,5 @@ export function main() {
     runAutocomment();
   }
 }
+
+console.log("FOr testing")
