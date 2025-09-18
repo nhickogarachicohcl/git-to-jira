@@ -1,7 +1,8 @@
 {
     "git": {
-        "commitMessageFlag": "--autocomment",
-        "fileIgnores": ["package-lock.json"]
+        "commitMessageFlag": "[autocomment]",
+        "fileIgnores": ["package-lock.json"],
+        "lastCommitsCount": 10
     },
     "llm": {
         "systemPrompt": "",

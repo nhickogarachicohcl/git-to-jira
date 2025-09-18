@@ -7,6 +7,7 @@ interface Git2JiraConfig {
   git?: {
     commitMessageFlag?: string;
     fileIgnores?: string[];
+    lastCommitsCount?: number;
   };
   llm?: {
     systemPrompt?: string;

@@ -127,7 +127,7 @@ export function getCommitsFromGit(): BasicCommit[] {
       } catch (rangeError) {
         console.log('Git range failed, falling back to recent commits');
         // Check if there's an upstream
-        let gitCommand = 'git log -10 --format="%H|%s|%ct"';
+        let gitCommand = `git log -${CONFIG.git?.lastCommitsCount ?? '10'} --format="%H|%s|%ct"`;
 
         gitOutput = execSync(gitCommand, {
           encoding: 'utf8',
@@ -136,7 +136,7 @@ export function getCommitsFromGit(): BasicCommit[] {
     } else {
       console.log('No valid SHA range, using recent commits');
       // Check if there's an upstream
-      let gitCommand = 'git log -10 --format="%H|%s|%ct"';
+      let gitCommand = `git log -${CONFIG.git?.lastCommitsCount ?? '10'} --format="%H|%s|%ct"`;
 
       gitOutput = execSync(gitCommand, {
         encoding: 'utf8',

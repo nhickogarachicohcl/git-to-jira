@@ -21,5 +21,3 @@ export function main() {
     runAutocomment();
   }
 }
-
-console.log("Update")
